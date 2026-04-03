@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import './i18n';
 
 export default function App() {
-  const { state } = useAdmin();
+  const { state, isDataLoading } = useAdmin();
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -41,6 +41,34 @@ export default function App() {
       lenis.destroy();
     };
   }, []);
+
+  if (isDataLoading) {
+    return (
+      <div className="fixed inset-0 bg-navy flex flex-col items-center justify-center z-[1000]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center"
+        >
+          <div className="flex flex-col -space-y-2 mb-8 items-center">
+            <span className="text-4xl font-serif text-platinum tracking-[0.3em] leading-none">MEN</span>
+            <span className="text-5xl font-serif text-gold tracking-[0.3em] leading-none">31</span>
+          </div>
+          <div className="w-48 h-[1px] bg-gold/20 relative overflow-hidden">
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+              className="absolute inset-0 bg-gold"
+            />
+          </div>
+          <span className="mt-4 text-[10px] uppercase tracking-[0.5em] text-gold/60 font-light">
+            Loading Collection
+          </span>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-gold selection:text-ivory bg-ivory">

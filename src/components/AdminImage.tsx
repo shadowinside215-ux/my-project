@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Upload, Loader2, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import { Upload, Loader2, Image as ImageIcon, Plus, Trash2, AlertCircle } from 'lucide-react';
 import { DraggableResizable } from './DraggableResizable';
 import { useAdmin } from '../AdminContext';
 import { cn } from '../lib/utils';
+import imageCompression from 'browser-image-compression';
 
 interface AdminImageProps {
   id: string;
@@ -15,6 +16,8 @@ interface AdminImageProps {
   aspectRatio?: string;
   noBorder?: boolean;
 }
+
+const MAX_FIRESTORE_SIZE = 1000000; // ~1MB limit for safety
 
 export const AdminImage: React.FC<AdminImageProps> = ({ 
   id, 
@@ -29,16 +32,29 @@ export const AdminImage: React.FC<AdminImageProps> = ({
 }) => {
   const { isAdmin } = useAdmin();
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const originalFile = e.target.files?.[0];
+    if (!originalFile) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append('image', file);
+    setError(null);
 
     try {
+      // 1. Compress image on client side
+      const options = {
+        maxSizeMB: 0.8, // Aim for < 1MB
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+      
+      const compressedFile = await imageCompression(originalFile, options);
+      
+      // 2. Try to upload to server/Cloudinary
+      const formData = new FormData();
+      formData.append('image', compressedFile);
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -53,21 +69,12 @@ export const AdminImage: React.FC<AdminImageProps> = ({
           throw new Error('Server returned non-JSON response');
         }
       } else {
-        // Fallback to base64 if server upload fails
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          onUpload(reader.result as string);
-        };
-        reader.readAsDataURL(file);
+        const errorData = await response.json().catch(() => ({ error: 'Unknown upload error' }));
+        throw new Error(errorData.error || 'Upload failed. Please check Cloudinary configuration.');
       }
-    } catch (error) {
-      console.error('Upload error:', error);
-      // Fallback to base64 on network error
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onUpload(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setError(err.message || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -105,7 +112,13 @@ export const AdminImage: React.FC<AdminImageProps> = ({
             {uploading ? (
               <Loader2 size={24} className="animate-spin text-gold" />
             ) : (
-              <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-4 px-4 text-center">
+                {error && (
+                  <div className="flex flex-col items-center text-red-400 mb-2">
+                    <AlertCircle size={20} />
+                    <span className="text-[8px] uppercase tracking-widest mt-1">{error}</span>
+                  </div>
+                )}
                 <label className="flex flex-col items-center justify-center cursor-pointer">
                   <Upload size={24} className="text-gold mb-2" />
                   <span className="text-[10px] uppercase tracking-widest text-ivory">Click to Upload</span>

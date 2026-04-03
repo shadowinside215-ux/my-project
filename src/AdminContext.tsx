@@ -24,6 +24,7 @@ interface AdminContextType {
   loginWithGoogle: () => Promise<void>;
   user: User | null;
   isLoginLoading: boolean;
+  isDataLoading: boolean;
 }
 
 const AdminContext = createContext<AdminContextType | null>(null);
@@ -32,11 +33,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isAdmin, setIsAdmin] = useState(() => getLocalStorage('isAdmin', false));
   const [user, setUser] = useState<User | null>(null);
   const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(() => !getLocalStorage('appState', null));
   const [pendingProduct, setPendingProduct] = useState<Partial<Product> | null>(null);
   const [state, setState] = useState<AppState>(() => {
-    const savedProducts = getLocalStorage('products', null);
+    const cached = getLocalStorage('appState', null);
+    if (cached) return cached;
     return {
-      products: savedProducts || DEFAULT_PRODUCTS,
+      products: DEFAULT_PRODUCTS,
       layouts: {},
       heroImage: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=1200',
       logoImage: '',
@@ -73,10 +76,19 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [isAdmin]);
 
   useEffect(() => {
-    setLocalStorage('products', state.products);
-  }, [state.products]);
+    setLocalStorage('appState', state);
+  }, [state]);
 
   useEffect(() => {
+    let settingsLoaded = false;
+    let productsLoaded = false;
+
+    const checkLoaded = () => {
+      if (settingsLoaded && productsLoaded) {
+        setIsDataLoading(false);
+      }
+    };
+
     // Listen to layouts
     const unsubLayouts = onSnapshot(collection(db, 'layouts'), (snapshot) => {
       const layouts = snapshot.docs.reduce((acc: Record<string, LayoutElement>, doc) => ({ 
@@ -90,11 +102,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const unsubSettings = onSnapshot(collection(db, 'settings'), (snapshot) => {
       const settings = snapshot.docs.reduce((acc, doc) => ({ ...acc, [doc.id]: doc.data().value }), {});
       setState(prev => ({ ...prev, ...settings }));
-    }, (error) => handleFirestoreError(error, OperationType.LIST, 'settings'));
+      settingsLoaded = true;
+      checkLoaded();
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'settings');
+      settingsLoaded = true;
+      checkLoaded();
+    });
+
+    // Listen to products
+    const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
+      const products = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
+      if (products.length > 0) {
+        setState(prev => ({ ...prev, products }));
+      }
+      productsLoaded = true;
+      checkLoaded();
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'products');
+      productsLoaded = true;
+      checkLoaded();
+    });
 
     return () => {
       unsubLayouts();
       unsubSettings();
+      unsubProducts();
     };
   }, []);
 
@@ -118,38 +151,81 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
   };
 
-  const updateLayout = (id: string, layout: Partial<LayoutElement>) => {
+  const updateLayout = async (id: string, layout: Partial<LayoutElement>) => {
+    const updatedLayout = { ...(state.layouts[id] || { id, x: 0, y: 0 }), ...layout };
     setState(prev => ({
       ...prev,
       layouts: {
         ...prev.layouts,
-        [id]: { ...(prev.layouts[id] || { id, x: 0, y: 0 }), ...layout }
+        [id]: updatedLayout
       }
     }));
+    
+    if (isAdmin) {
+      try {
+        await setDoc(doc(db, 'layouts', id), updatedLayout, { merge: true });
+      } catch (error) {
+        console.error('Layout update error:', error);
+      }
+    }
   };
 
-  const updateProducts = (products: Product[]) => {
+  const updateProducts = async (products: Product[]) => {
     setState(prev => ({ ...prev, products }));
+    // This is a bulk update, usually not used in real-time
   };
 
-  const addProduct = (product: Omit<Product, 'id'>) => {
-    const newProduct = { ...product, id: Date.now().toString() };
+  const addProduct = async (product: Omit<Product, 'id'>) => {
+    const id = Date.now().toString();
+    const newProduct = { ...product, id };
     setState(prev => ({ ...prev, products: [...prev.products, newProduct] }));
+    
+    if (isAdmin) {
+      try {
+        await setDoc(doc(db, 'products', id), newProduct);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.CREATE, `products/${id}`);
+      }
+    }
   };
 
-  const removeProduct = (id: string) => {
+  const removeProduct = async (id: string) => {
     setState(prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }));
+    
+    if (isAdmin) {
+      try {
+        await deleteDoc(doc(db, 'products', id));
+      } catch (error) {
+        handleFirestoreError(error, OperationType.DELETE, `products/${id}`);
+      }
+    }
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
+  const updateProduct = async (id: string, updates: Partial<Product>) => {
     setState(prev => ({
       ...prev,
       products: prev.products.map(p => p.id === id ? { ...p, ...updates } : p)
     }));
+    
+    if (isAdmin) {
+      try {
+        await updateDoc(doc(db, 'products', id), updates);
+      } catch (error) {
+        handleFirestoreError(error, OperationType.UPDATE, `products/${id}`);
+      }
+    }
   };
 
-  const updateImages = (key: keyof AppState, value: any) => {
+  const updateImages = async (key: keyof AppState, value: any) => {
     setState(prev => ({ ...prev, [key]: value }));
+    
+    if (isAdmin) {
+      try {
+        await setDoc(doc(db, 'settings', key as string), { value }, { merge: true });
+      } catch (error) {
+        handleFirestoreError(error, OperationType.UPDATE, `settings/${key as string}`);
+      }
+    }
   };
 
   const loginWithGoogle = async () => {
@@ -195,9 +271,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       await batch.commit();
       alert('Changes saved successfully to Cloud and Local Storage!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving changes:', error);
-      handleFirestoreError(error, OperationType.WRITE, 'batch-commit');
+      if (error.message?.includes('exceeds the maximum allowed size')) {
+        setError('One or more images are too large to save. Please use smaller images or configure Cloudinary.');
+      } else {
+        handleFirestoreError(error, OperationType.WRITE, 'batch-commit');
+      }
     }
   };
 
@@ -205,7 +285,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <AdminContext.Provider value={{ 
       isAdmin, error, login, logout, state, updateLayout, updateProducts, 
       addProduct, removeProduct, updateProduct, updateImages, saveChanges,
-      pendingProduct, setPendingProduct, loginWithGoogle, user, isLoginLoading
+      pendingProduct, setPendingProduct, loginWithGoogle, user, isLoginLoading,
+      isDataLoading
     }}>
       {children}
     </AdminContext.Provider>

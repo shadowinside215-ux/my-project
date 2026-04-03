@@ -33,14 +33,13 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20">
       <div className="max-w-[1800px] mx-auto px-8 h-24 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 cursor-pointer" onClick={() => window.location.reload()}>
           <AdminImage 
             id="nav-logo-img"
             src={state.logoImage}
             alt="Logo"
             className="w-20 h-20"
             onUpload={(url) => updateImages('logoImage', url)}
-            onClick={() => window.location.reload()}
             noBorder
           />
           <div className="flex flex-col -space-y-1">

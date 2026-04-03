@@ -40,6 +40,12 @@ async function startServer() {
 
   // API Routes
   app.post('/api/upload', (req, res, next) => {
+    if (!cloudinaryConfig.cloud_name || !cloudinaryConfig.api_key || !cloudinaryConfig.api_secret) {
+      return res.status(500).json({ 
+        error: 'Cloudinary configuration is missing. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to the Secrets panel in Settings.' 
+      });
+    }
+
     upload.single('image')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
         return res.status(400).json({ error: `Multer error: ${err.message}` });
@@ -67,7 +73,10 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: false
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -78,6 +87,15 @@ async function startServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+
+  // Global error handler
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('Unhandled Error:', err);
+    res.status(err.status || 500).json({
+      error: err.message || 'Internal Server Error',
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+  });
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://localhost:${PORT}`);
