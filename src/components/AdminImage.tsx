@@ -12,6 +12,7 @@ interface AdminImageProps {
   onUpload: (url: string) => void;
   onClick?: () => void;
   aspectRatio?: string;
+  noBorder?: boolean;
 }
 
 export const AdminImage: React.FC<AdminImageProps> = ({ 
@@ -21,7 +22,8 @@ export const AdminImage: React.FC<AdminImageProps> = ({
   className, 
   onUpload,
   onClick,
-  aspectRatio = "aspect-square"
+  aspectRatio = "aspect-square",
+  noBorder = false
 }) => {
   const { isAdmin } = useAdmin();
   const [uploading, setUploading] = useState(false);
@@ -40,13 +42,30 @@ export const AdminImage: React.FC<AdminImageProps> = ({
         body: formData,
       });
       
-      if (!response.ok) throw new Error('Upload failed');
-      
-      const data = await response.json();
-      onUpload(data.url);
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          onUpload(data.url);
+        } else {
+          throw new Error('Server returned non-JSON response');
+        }
+      } else {
+        // Fallback to base64 if server upload fails
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          onUpload(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload image.');
+      // Fallback to base64 on network error
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpload(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     } finally {
       setUploading(false);
     }
@@ -54,7 +73,7 @@ export const AdminImage: React.FC<AdminImageProps> = ({
 
   return (
     <DraggableResizable id={id} className={cn("relative group", className)}>
-      <div className="relative w-full h-full overflow-hidden luxury-border">
+      <div className={cn("relative w-full h-full overflow-hidden", !noBorder && "luxury-border")}>
         {src ? (
           <img 
             src={src} 

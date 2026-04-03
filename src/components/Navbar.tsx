@@ -8,37 +8,47 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { isAdmin, login, logout, state, updateImages } = useAdmin();
+  const { isAdmin, error, login, logout, state, updateImages } = useAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'en' ? 'fr' : 'en');
+    const langs = ['fr', 'en', 'ar'];
+    const nextIndex = (langs.indexOf(i18n.language) + 1) % langs.length;
+    i18n.changeLanguage(langs[nextIndex]);
   };
 
-  const handleLogin = async () => {
-    const success = await login();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await login(username, password);
     if (success) {
       setShowLogin(false);
+      setUsername('');
+      setPassword('');
     }
   };
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20">
-      <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
-        <div className="flex items-center space-x-8">
+      <div className="max-w-[1800px] mx-auto px-8 h-24 flex items-center justify-between">
+        <div className="flex items-center space-x-4">
           <AdminImage 
             id="nav-logo-img"
             src={state.logoImage}
             alt="Logo"
-            className="w-32 h-12"
+            className="w-20 h-20"
             onUpload={(url) => updateImages('logoImage', url)}
             onClick={() => window.location.reload()}
+            noBorder
           />
+          <div className="flex flex-col -space-y-1">
+            <span className="text-2xl font-serif text-platinum tracking-widest leading-none">MEN</span>
+            <span className="text-3xl font-serif text-gold tracking-widest leading-none">31</span>
+          </div>
           <DraggableResizable id="nav-tagline">
-            <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap">
+            <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap ml-8">
               {t('tagline', 'Vêtements Intemporels')}
             </span>
           </DraggableResizable>
@@ -119,22 +129,43 @@ export const Navbar: React.FC = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-ivory p-10 max-w-md w-full border border-platinum shadow-2xl text-center"
+              className="bg-ivory p-10 max-w-md w-full border border-platinum shadow-2xl"
             >
               <div className="flex justify-between items-center mb-10">
                 <h2 className="text-2xl font-serif text-navy">Admin Portal</h2>
                 <button onClick={() => setShowLogin(false)} className="text-navy"><X /></button>
               </div>
-              <div className="space-y-8">
-                <p className="text-sm text-charcoal/60">Please sign in with your authorized Google account to access admin features.</p>
+              <form onSubmit={handleLogin} className="space-y-8">
+                {error && (
+                  <div className="text-red-500 text-[10px] uppercase tracking-widest text-center bg-red-50 p-2 border border-red-100">
+                    {error}
+                  </div>
+                )}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-charcoal/60">Username</label>
+                  <input 
+                    type="text" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-charcoal"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-charcoal/60">Password</label>
+                  <input 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-charcoal"
+                  />
+                </div>
                 <button 
-                  onClick={handleLogin}
-                  className="luxury-button w-full flex items-center justify-center space-x-3"
+                  type="submit"
+                  className="luxury-button w-full"
                 >
-                  <Globe size={18} />
-                  <span>Sign in with Google</span>
+                  Authenticate
                 </button>
-              </div>
+              </form>
             </motion.div>
           </div>
         )}

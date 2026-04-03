@@ -25,6 +25,13 @@ const resources = {
       admin_logout: 'Logout',
       quick_links: 'Quick Links',
       location: 'Store Location: Casablanca, Morocco',
+      category_all: 'All Products',
+      'category_T-Shirts': 'T-Shirts',
+      'category_Hoodies': 'Hoodies',
+      'category_Pants': 'Pants',
+      'category_Jackets': 'Jackets',
+      'category_Boots': 'Boots',
+      'category_Accessories': 'Accessories',
     }
   },
   fr: {
@@ -49,6 +56,44 @@ const resources = {
       admin_logout: 'Déconnexion',
       quick_links: 'Liens Rapides',
       location: 'Boutique: Casablanca, Maroc',
+      category_all: 'Tous les Produits',
+      'category_T-Shirts': 'T-Shirts',
+      'category_Hoodies': 'Sweats à Capuche',
+      'category_Pants': 'Pantalons',
+      'category_Jackets': 'Vestes',
+      'category_Boots': 'Bottes',
+      'category_Accessories': 'Accessoires',
+    }
+  },
+  ar: {
+    translation: {
+      hero_title: 'ملابس رجالية خالدة. حضور راقٍ.',
+      hero_button: 'اكتشف المجموعة',
+      new_collection_title: 'مجموعة جديدة',
+      new_collection_subtitle: 'أساسيات فاخرة للرجل العصري',
+      new_collection_button: 'عرض المجموعة',
+      philosophy_title: 'فلسفتنا',
+      philosophy_text: "في MEN31، نؤمن بأن الفخامة الحقيقية لا تتعلق فقط بما ترتديه، بل بكيفية تقديم نفسك. التزامنا بالأناقة الخالدة والحرفية التي لا تضاهى يضمن أن كل قطعة في مجموعتنا هي شهادة على الحضور الراقي للرجل العصري.",
+      philosophy_subtext: 'يتم تصنيع كل قطعة ملابس بدقة من أجود المواد، مع مزج التقنيات التقليدية مع التصميم المعاصر لإنشاء خزانة ملابس تتجاوز الاتجاهات العابرة.',
+      feature_grid_title: 'صُممت للرجل العصري',
+      feature_1: 'البدلة المثالية',
+      feature_2: 'ساعات خالدة',
+      feature_3: 'أساسيات جلدية',
+      tagline: 'ملابس خالدة',
+      collection: 'المجموعة',
+      about: 'حول',
+      contact: 'اتصال',
+      admin_login: 'دخول المسؤول',
+      admin_logout: 'تسجيل الخروج',
+      quick_links: 'روابط سريعة',
+      location: 'موقع المتجر: الدار البيضاء، المغرب',
+      category_all: 'جميع المنتجات',
+      'category_T-Shirts': 'تي شيرت',
+      'category_Hoodies': 'هوديس',
+      'category_Pants': 'سراويل',
+      'category_Jackets': 'سترات',
+      'category_Boots': 'أحذية',
+      'category_Accessories': 'إكسسوارات',
     }
   }
 };
@@ -58,7 +103,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    fallbackLng: 'en',
+    lng: 'fr',
+    fallbackLng: 'fr',
     interpolation: {
       escapeValue: false
     }

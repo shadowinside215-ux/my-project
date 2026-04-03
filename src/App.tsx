@@ -7,13 +7,22 @@ import { Collection } from './components/Shop';
 import { Philosophy } from './components/Philosophy';
 import { Footer } from './components/Footer';
 import { AdminPanel } from './components/AdminPanel';
+import { PendingProductModal } from './components/PendingProductModal';
 import { useAdmin } from './AdminContext';
 import { AnimatePresence, motion } from 'motion/react';
 import { X as CloseIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import './i18n';
 
 export default function App() {
   const { state } = useAdmin();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -37,6 +46,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col selection:bg-gold selection:text-ivory bg-ivory">
       <Navbar />
       <AdminPanel />
+      <PendingProductModal />
       
       <main className="flex-1 flex flex-col max-w-[1800px] mx-auto w-full pt-20">
         <Hero />

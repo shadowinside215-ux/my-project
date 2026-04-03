@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { DraggableResizable } from './DraggableResizable';
 import { useAdmin } from '../AdminContext';
 import { CATEGORIES } from '../types';
+import { cn } from '../lib/utils';
 
 import { AdminImage } from './AdminImage';
-import { Plus, Trash2, Edit2, Check, X as CloseIcon } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X as CloseIcon, Loader2 } from 'lucide-react';
 
 const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   const { t } = useTranslation();
@@ -39,13 +40,13 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               className="w-full bg-transparent border-b border-navy/10 text-center text-sm font-serif outline-none focus:border-gold"
             />
             <div className="flex items-center justify-center space-x-2">
-              <span className="text-xs text-charcoal/40">$</span>
               <input 
                 type="number" 
                 value={editData.price}
                 onChange={(e) => setEditData({ ...editData, price: Number(e.target.value) })}
                 className="w-20 bg-transparent border-b border-navy/10 text-center text-xs outline-none focus:border-gold"
               />
+              <span className="text-xs text-charcoal/40">DH</span>
             </div>
             <select 
               value={editData.category}
@@ -68,7 +69,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
               {product.name}
             </h3>
             <p className="text-xs font-sans text-charcoal/60 tracking-widest group-hover:text-gold transition-colors duration-300">
-              ${product.price}
+              {product.price} DH
             </p>
           </>
         )}
@@ -96,8 +97,55 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
 export const Collection: React.FC = () => {
   const { t } = useTranslation();
-  const { state, isAdmin, addProduct } = useAdmin();
+  const { state, isAdmin, addProduct, updateImages, setPendingProduct } = useAdmin();
   const [activeCategory, setActiveCategory] = useState('all');
+  const [uploading, setUploading] = useState(false);
+
+  const handleAddProductClick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      let imageUrl = '';
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          imageUrl = data.url;
+        } else {
+          throw new Error('Server returned non-JSON response');
+        }
+      } else {
+        // Fallback to base64
+        const reader = new FileReader();
+        imageUrl = await new Promise((resolve) => {
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      setPendingProduct({
+        image: imageUrl,
+        category: activeCategory === 'all' ? CATEGORIES[1] : activeCategory,
+        name: '',
+        price: 0
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+    } finally {
+      setUploading(false);
+      e.target.value = ''; // Reset input
+    }
+  };
 
   const filteredProducts = activeCategory === 'all' 
     ? state.products 
@@ -112,39 +160,81 @@ export const Collection: React.FC = () => {
         </DraggableResizable>
       </div>
 
-      {/* Categories Bar */}
-      <div className="flex flex-wrap gap-4 mb-6 flex-shrink-0 overflow-x-auto pb-2 no-scrollbar">
-        {CATEGORIES.map((category) => (
-          <button
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            className={`text-[8px] md:text-[10px] uppercase tracking-[0.3em] font-medium transition-all duration-300 relative pb-1 whitespace-nowrap ${
-              activeCategory === category ? 'text-gold' : 'text-charcoal/40 hover:text-charcoal'
-            }`}
-          >
-            {category}
-            {activeCategory === category && (
-              <motion.div 
-                layoutId="activeCategory"
-                className="absolute bottom-0 left-0 w-full h-[1px] bg-gold"
+      <div className="flex justify-center mb-12 overflow-x-auto no-scrollbar pb-4">
+        <div className="flex space-x-8">
+          {CATEGORIES.map((category) => (
+            <button 
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={cn(
+                "text-[10px] uppercase tracking-[0.4em] font-medium transition-all duration-500 relative py-2",
+                activeCategory === category ? 'text-gold' : 'text-charcoal/30 hover:text-charcoal'
+              )}
+            >
+              {t(`category_${category}`, category)}
+              {activeCategory === category && (
+                <motion.div 
+                  layoutId="activeTab"
+                  className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Categories Grid with Images */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12 flex-shrink-0">
+        {CATEGORIES.filter(c => c !== 'all').map((category) => (
+          <div key={category} className="flex flex-col space-y-2">
+            <div className="relative aspect-square group/cat overflow-hidden luxury-border">
+              <AdminImage 
+                id={`cat-img-${category}`}
+                src={state.categoryImages?.[category] || ''}
+                alt={category}
+                className="w-full h-full"
+                onUpload={(url) => updateImages('categoryImages', { ...state.categoryImages, [category]: url })}
+                onClick={() => setActiveCategory(category)}
               />
-            )}
-          </button>
+              <div 
+                onClick={() => setActiveCategory(category)}
+                className={cn(
+                  "absolute inset-0 bg-navy/20 group-hover/cat:bg-navy/40 transition-colors cursor-pointer flex items-center justify-center",
+                  activeCategory === category && "bg-gold/20"
+                )}
+              >
+                <span className={cn(
+                  "text-[10px] uppercase tracking-[0.3em] font-bold text-ivory drop-shadow-md",
+                  activeCategory === category && "text-gold"
+                )}>
+                  {t(`category_${category}`, category)}
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 
       {/* Products Grid */}
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
+        <motion.div 
+          layout
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
+        >
           <AnimatePresence mode="popLayout">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.5 }}
+                transition={{ 
+                  duration: 0.5,
+                  delay: index * 0.05,
+                  ease: [0.23, 1, 0.32, 1]
+                }}
               >
                 <ProductCard product={product} />
               </motion.div>
@@ -155,20 +245,27 @@ export const Collection: React.FC = () => {
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col items-center justify-center aspect-[3/4] luxury-border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors group"
-                onClick={() => addProduct({
-                  name: 'New Product',
-                  price: 0,
-                  category: activeCategory === 'all' ? 'tshirts' : activeCategory,
-                  image: ''
-                })}
+                className="relative flex flex-col items-center justify-center aspect-[3/4] luxury-border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors group"
               >
-                <Plus size={24} className="text-gold group-hover:scale-110 transition-transform" />
-                <span className="text-[8px] uppercase tracking-[0.2em] text-gold font-bold mt-2">Add</span>
+                {uploading ? (
+                  <Loader2 size={24} className="animate-spin text-gold" />
+                ) : (
+                  <>
+                    <Plus size={24} className="text-gold group-hover:scale-110 transition-transform" />
+                    <span className="text-[8px] uppercase tracking-[0.2em] text-gold font-bold mt-2">Add Product</span>
+                  </>
+                )}
+                <input 
+                  type="file" 
+                  className="absolute inset-0 opacity-0 cursor-pointer" 
+                  accept="image/*"
+                  onChange={handleAddProductClick}
+                  disabled={uploading}
+                />
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

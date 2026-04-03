@@ -13,19 +13,20 @@ export const Footer: React.FC = () => {
       <div className="max-w-[1800px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
         {/* Column 1: Brand */}
         <div className="flex flex-col items-center md:items-start space-y-6">
-          <AdminImage 
-            id="footer-logo-img"
-            src={state.footerLogo}
-            alt="Footer Logo"
-            className="w-32 h-16"
-            onUpload={(url) => updateImages('footerLogo', url)}
-          />
-          {!state.footerLogo && (
-            <div className="flex items-center space-x-2">
-              <Crown size={20} className="text-gold" />
-              <h3 className="text-xl font-serif font-bold tracking-widest">MEN31</h3>
+          <div className="flex items-center space-x-4">
+            <AdminImage 
+              id="footer-logo-img"
+              src={state.footerLogo}
+              alt="Footer Logo"
+              className="w-20 h-20"
+              onUpload={(url) => updateImages('footerLogo', url)}
+              noBorder
+            />
+            <div className="flex flex-col -space-y-1">
+              <span className="text-xl font-serif text-platinum tracking-widest leading-none">MEN</span>
+              <span className="text-2xl font-serif text-gold tracking-widest leading-none">31</span>
             </div>
-          )}
+          </div>
           <p className="text-[10px] uppercase tracking-[0.3em] text-gold/60 font-light text-center md:text-left">
             Vêtements Intemporels
           </p>
