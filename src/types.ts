@@ -42,5 +42,5 @@ export const DEFAULT_PRODUCTS: Product[] = [
 ];
 
 export const CATEGORIES = [
-  'all', 'T-Shirts', 'Hoodies', 'Pants', 'Jackets', 'Boots', 'Accessories'
+  'all', 'T-Shirts', 'Hoodies', 'Pants'
 ];

@@ -40,6 +40,7 @@ export const Philosophy: React.FC = () => {
             aspectRatio="aspect-square"
             className="h-full w-full"
             onUpload={(url) => updateImages('philosophyImage', url)}
+            onDelete={() => updateImages('philosophyImage', '')}
           />
         </motion.div>
       </div>

@@ -47,6 +47,7 @@ export const NewCollection: React.FC = () => {
             alt="New Collection"
             className="w-full h-[600px] object-cover"
             onUpload={(url) => updateImages('newCollectionImage', url)}
+            onDelete={() => updateImages('newCollectionImage', '')}
           />
         </motion.div>
       </div>

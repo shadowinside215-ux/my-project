@@ -43,6 +43,7 @@ export const Hero: React.FC = () => {
             alt="Hero Image"
             className="h-full w-full"
             onUpload={(url) => updateImages('heroImage', url)}
+            onDelete={() => updateImages('heroImage', '')}
           />
         </motion.div>
       </div>

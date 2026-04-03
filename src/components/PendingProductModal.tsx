@@ -100,12 +100,16 @@ export const PendingProductModal: React.FC = () => {
                     <DollarSign size={12} className="text-gold" />
                     <span>Price (DH)</span>
                   </label>
-                  <input 
-                    type="number" 
-                    value={price}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full bg-transparent border-b border-navy/10 py-2 text-sm outline-none focus:border-gold transition-colors"
-                  />
+                  <div className="relative flex items-center">
+                    <input 
+                      type="number" 
+                      value={price || ''}
+                      onChange={(e) => setPrice(e.target.value === '' ? 0 : Number(e.target.value))}
+                      placeholder="0"
+                      className="w-full bg-transparent border-b border-navy/10 py-2 text-sm outline-none focus:border-gold transition-colors pr-8"
+                    />
+                    <span className="absolute right-0 text-[10px] text-charcoal/40 font-bold">DH</span>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

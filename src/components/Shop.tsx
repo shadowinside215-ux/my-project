@@ -28,6 +28,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         alt={product.name}
         aspectRatio="aspect-[3/4]"
         onUpload={(url) => updateProduct(product.id, { image: url })}
+        onDelete={() => updateProduct(product.id, { image: '' })}
       />
       
       <div className="mt-6 text-center space-y-2">
@@ -101,7 +102,7 @@ export const Collection: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [uploading, setUploading] = useState(false);
 
-  const handleAddProductClick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddProductClick = async (e: React.ChangeEvent<HTMLInputElement>, targetCategory?: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -135,7 +136,7 @@ export const Collection: React.FC = () => {
 
       setPendingProduct({
         image: imageUrl,
-        category: activeCategory === 'all' ? CATEGORIES[1] : activeCategory,
+        category: targetCategory || (activeCategory === 'all' ? CATEGORIES[1] : activeCategory),
         name: '',
         price: 0
       });
@@ -195,6 +196,7 @@ export const Collection: React.FC = () => {
                 alt={category}
                 className="w-full h-full"
                 onUpload={(url) => updateImages('categoryImages', { ...state.categoryImages, [category]: url })}
+                onDelete={() => updateImages('categoryImages', { ...state.categoryImages, [category]: '' })}
                 onClick={() => setActiveCategory(category)}
               />
               <div 

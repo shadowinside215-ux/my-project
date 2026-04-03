@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Loader2, Image as ImageIcon, Plus } from 'lucide-react';
+import { Upload, Loader2, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 import { DraggableResizable } from './DraggableResizable';
 import { useAdmin } from '../AdminContext';
 import { cn } from '../lib/utils';
@@ -10,6 +10,7 @@ interface AdminImageProps {
   alt: string;
   className?: string;
   onUpload: (url: string) => void;
+  onDelete?: () => void;
   onClick?: () => void;
   aspectRatio?: string;
   noBorder?: boolean;
@@ -21,6 +22,7 @@ export const AdminImage: React.FC<AdminImageProps> = ({
   alt, 
   className, 
   onUpload,
+  onDelete,
   onClick,
   aspectRatio = "aspect-square",
   noBorder = false
@@ -99,22 +101,36 @@ export const AdminImage: React.FC<AdminImageProps> = ({
         )}
 
         {isAdmin && (
-          <label className="absolute inset-0 bg-navy/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer z-20">
+          <div className="absolute inset-0 bg-navy/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-20">
             {uploading ? (
               <Loader2 size={24} className="animate-spin text-gold" />
             ) : (
-              <>
-                <Upload size={24} className="text-gold mb-2" />
-                <span className="text-[10px] uppercase tracking-widest text-ivory">Click to Upload</span>
-              </>
+              <div className="flex flex-col items-center space-y-4">
+                <label className="flex flex-col items-center justify-center cursor-pointer">
+                  <Upload size={24} className="text-gold mb-2" />
+                  <span className="text-[10px] uppercase tracking-widest text-ivory">Click to Upload</span>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                  />
+                </label>
+                {src && onDelete && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="flex flex-col items-center justify-center text-red-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={20} />
+                    <span className="text-[8px] uppercase tracking-widest mt-1">Delete</span>
+                  </button>
+                )}
+              </div>
             )}
-            <input 
-              type="file" 
-              className="hidden" 
-              accept="image/*"
-              onChange={handleFileUpload}
-            />
-          </label>
+          </div>
         )}
       </div>
     </DraggableResizable>
