@@ -12,6 +12,7 @@ export interface LayoutElement {
   y: number;
   width?: number;
   height?: number;
+  fontSize?: number;
 }
 
 export interface AppState {

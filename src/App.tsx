@@ -5,17 +5,19 @@ import { Hero } from './components/Hero';
 import { NewCollection } from './components/FeaturedGrid';
 import { Collection } from './components/Shop';
 import { Philosophy } from './components/Philosophy';
+import { Lookbook } from './components/Lookbook';
 import { Footer } from './components/Footer';
 import { AdminPanel } from './components/AdminPanel';
 import { PendingProductModal } from './components/PendingProductModal';
 import { useAdmin } from './AdminContext';
 import { AnimatePresence, motion } from 'motion/react';
-import { X as CloseIcon } from 'lucide-react';
+import { X as CloseIcon, Loader2, Crown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from './lib/utils';
 import './i18n';
 
 export default function App() {
-  const { state, isDataLoading } = useAdmin();
+  const { state, isDataLoading, isScrollEnabled, isMobile } = useAdmin();
   const { i18n } = useTranslation();
 
   useEffect(() => {
@@ -70,16 +72,28 @@ export default function App() {
     );
   }
 
+  // On mobile/tablet, we want the compact view to be the "everything on one screen" view.
+  // Scrolling is only allowed when isScrollEnabled is true.
+  const showCompact = isMobile || !isScrollEnabled;
+
   return (
-    <div className="min-h-screen flex flex-col selection:bg-gold selection:text-ivory bg-ivory">
+    <div className={cn(
+      "min-h-screen flex flex-col selection:bg-gold selection:text-ivory bg-ivory",
+      !isScrollEnabled && "h-screen overflow-hidden"
+    )}>
       <Navbar />
       <AdminPanel />
       <PendingProductModal />
       
-      <main className="flex-1 flex flex-col max-w-[1800px] mx-auto w-full pt-20">
+      <main className={cn(
+        "flex-1 flex flex-col max-w-[1800px] mx-auto w-full transition-all duration-700",
+        showCompact ? "pt-12" : "pt-24",
+        !isScrollEnabled && "h-[calc(100vh-48px)]"
+      )}>
         <Hero />
         <NewCollection />
         <Philosophy />
+        <Lookbook />
         <Collection />
         <Footer />
       </main>

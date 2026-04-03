@@ -25,6 +25,9 @@ interface AdminContextType {
   user: User | null;
   isLoginLoading: boolean;
   isDataLoading: boolean;
+  isScrollEnabled: boolean;
+  setIsScrollEnabled: (enabled: boolean) => void;
+  isMobile: boolean;
 }
 
 const AdminContext = createContext<AdminContextType | null>(null);
@@ -34,6 +37,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [user, setUser] = useState<User | null>(null);
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isDataLoading, setIsDataLoading] = useState(() => !getLocalStorage('appState', null));
+  const [isScrollEnabled, setIsScrollEnabled] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // Tablet and Mobile
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [pendingProduct, setPendingProduct] = useState<Partial<Product> | null>(null);
   const [state, setState] = useState<AppState>(() => {
     const cached = getLocalStorage('appState', null);
@@ -151,7 +165,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
   };
 
-  const updateLayout = async (id: string, layout: Partial<LayoutElement>) => {
+  const updateLayout = (id: string, layout: Partial<LayoutElement>) => {
     const updatedLayout = { ...(state.layouts[id] || { id, x: 0, y: 0 }), ...layout };
     setState(prev => ({
       ...prev,
@@ -162,11 +176,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }));
     
     if (isAdmin) {
-      try {
-        await setDoc(doc(db, 'layouts', id), updatedLayout, { merge: true });
-      } catch (error) {
-        console.error('Layout update error:', error);
-      }
+      // Debounce Firestore update
+      const timeoutId = (window as any)[`layout_timeout_${id}`];
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      (window as any)[`layout_timeout_${id}`] = setTimeout(async () => {
+        try {
+          await setDoc(doc(db, 'layouts', id), updatedLayout, { merge: true });
+        } catch (error) {
+          console.error('Layout update error:', error);
+        }
+      }, 500); // 500ms debounce
     }
   };
 
@@ -286,7 +306,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isAdmin, error, login, logout, state, updateLayout, updateProducts, 
       addProduct, removeProduct, updateProduct, updateImages, saveChanges,
       pendingProduct, setPendingProduct, loginWithGoogle, user, isLoginLoading,
-      isDataLoading
+      isDataLoading, isScrollEnabled, setIsScrollEnabled, isMobile
     }}>
       {children}
     </AdminContext.Provider>

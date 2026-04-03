@@ -5,14 +5,17 @@ import { LogIn, LogOut, Globe, Menu, X, Search, Crown } from 'lucide-react';
 import { DraggableResizable } from './DraggableResizable';
 import { AdminImage } from './AdminImage';
 import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '../lib/utils';
 
 export const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { isAdmin, error, login, logout, state, updateImages } = useAdmin();
+  const { isAdmin, error, login, logout, state, updateImages, isScrollEnabled, setIsScrollEnabled, isMobile } = useAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const showCompact = isMobile || !isScrollEnabled;
 
   const toggleLanguage = () => {
     const langs = ['fr', 'en', 'ar'];
@@ -30,38 +33,69 @@ export const Navbar: React.FC = () => {
     }
   };
 
+  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    if (!isScrollEnabled) {
+      setIsScrollEnabled(true);
+      // Small delay to allow layout to update before scrolling
+      setTimeout(() => {
+        const element = document.querySelector(target);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    }
+    setIsMenuOpen(false);
+  };
+
   return (
-    <nav className="fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20">
-      <div className="max-w-[1800px] mx-auto px-8 h-24 flex items-center justify-between">
-        <div className="flex items-center space-x-4 cursor-pointer" onClick={() => window.location.reload()}>
+    <nav className={cn(
+      "fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20 transition-all duration-700",
+      showCompact ? "h-12" : "h-24"
+    )}>
+      <div className="max-w-[1800px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
+        <div className="flex items-center space-x-2 md:space-x-4 cursor-pointer" onClick={() => window.location.reload()}>
           <AdminImage 
             id="nav-logo-img"
             src={state.logoImage}
             alt="Logo"
-            className="w-20 h-20"
+            className={cn(
+              "transition-all duration-700",
+              showCompact ? "w-8 h-8" : "w-20 h-20"
+            )}
             onUpload={(url) => updateImages('logoImage', url)}
             noBorder
           />
           <div className="flex flex-col -space-y-1">
-            <span className="text-2xl font-serif text-platinum tracking-widest leading-none">MEN</span>
-            <span className="text-3xl font-serif text-gold tracking-widest leading-none">31</span>
+            <span className={cn(
+              "font-serif text-platinum tracking-widest leading-none transition-all duration-700",
+              showCompact ? "text-sm" : "text-2xl"
+            )}>MEN</span>
+            <span className={cn(
+              "font-serif text-gold tracking-widest leading-none transition-all duration-700",
+              showCompact ? "text-base" : "text-3xl"
+            )}>31</span>
           </div>
-          <DraggableResizable id="nav-tagline">
-            <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap ml-8">
-              {t('tagline', 'Vêtements Intemporels')}
-            </span>
-          </DraggableResizable>
+          {showCompact ? null : (
+            <DraggableResizable id="nav-tagline">
+              <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap ml-8">
+                {t('tagline', 'Vêtements Intemporels')}
+              </span>
+            </DraggableResizable>
+          )}
         </div>
 
         <div className="hidden md:flex items-center space-x-12">
           <DraggableResizable id="nav-links">
-            <div className="flex items-center space-x-10 text-[11px] uppercase tracking-[0.25em] font-light">
+            <div className={cn(
+              "flex items-center space-x-6 md:space-x-10 uppercase tracking-[0.25em] font-light transition-all duration-700",
+              showCompact ? "text-[8px]" : "text-[11px]"
+            )}>
               <a href="#" className="hover:text-gold transition-colors">Home</a>
-              <a href="#collection" className="hover:text-gold transition-colors">Collection</a>
-              <a href="#about" className="hover:text-gold transition-colors">About</a>
-              <a href="#contact" className="hover:text-gold transition-colors">Contact</a>
+              <a href="#shop" onClick={(e) => handleNavLinkClick(e, '#shop')} className="hover:text-gold transition-colors">Collection</a>
+              <a href="#about" onClick={(e) => handleNavLinkClick(e, '#about')} className="hover:text-gold transition-colors">About</a>
+              <a href="#contact" onClick={(e) => handleNavLinkClick(e, '#contact')} className="hover:text-gold transition-colors">Contact</a>
               <button className="hover:text-gold transition-colors">
-                <Search size={16} />
+                <Search size={showCompact ? 12 : 16} />
               </button>
             </div>
           </DraggableResizable>
@@ -69,18 +103,24 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center space-x-6">
             <button 
               onClick={toggleLanguage}
-              className="flex items-center space-x-2 text-[10px] uppercase tracking-widest hover:text-gold transition-colors"
+              className={cn(
+                "flex items-center space-x-2 uppercase tracking-widest hover:text-gold transition-colors",
+                showCompact ? "text-[8px]" : "text-[10px]"
+              )}
             >
-              <Globe size={14} />
+              <Globe size={showCompact ? 12 : 14} />
               <span>{i18n.language.toUpperCase()}</span>
             </button>
 
             {isAdmin ? (
               <button 
                 onClick={logout}
-                className="flex items-center space-x-2 border border-gold/30 px-4 py-2 text-[10px] uppercase tracking-widest hover:bg-gold hover:text-navy transition-all"
+                className={cn(
+                  "flex items-center space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all",
+                  showCompact ? "px-2 py-1 text-[8px]" : "px-4 py-2 text-[10px]"
+                )}
               >
-                <LogOut size={14} />
+                <LogOut size={showCompact ? 12 : 14} />
                 <span>{t('admin_logout')}</span>
               </button>
             ) : (
@@ -88,14 +128,14 @@ export const Navbar: React.FC = () => {
                 onClick={() => setShowLogin(true)}
                 className="text-ivory hover:text-gold transition-colors"
               >
-                <LogIn size={18} />
+                <LogIn size={showCompact ? 14 : 18} />
               </button>
             )}
           </div>
         </div>
 
         <button className="md:hidden text-ivory" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <X /> : <Menu />}
+          {isMenuOpen ? <X size={showCompact ? 18 : 24} /> : <Menu size={showCompact ? 18 : 24} />}
         </button>
       </div>
 
@@ -109,9 +149,9 @@ export const Navbar: React.FC = () => {
             className="md:hidden bg-navy border-b border-gold/20 px-8 py-10 flex flex-col space-y-8 text-center uppercase tracking-[0.2em] text-xs font-light"
           >
             <a href="#" onClick={() => setIsMenuOpen(false)}>Home</a>
-            <a href="#collection" onClick={() => setIsMenuOpen(false)}>Collection</a>
-            <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
-            <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
+            <a href="#shop" onClick={(e) => handleNavLinkClick(e, '#shop')}>Collection</a>
+            <a href="#about" onClick={(e) => handleNavLinkClick(e, '#about')}>About</a>
+            <a href="#contact" onClick={(e) => handleNavLinkClick(e, '#contact')}>Contact</a>
             <button onClick={toggleLanguage} className="flex items-center justify-center space-x-2">
               <Globe size={14} />
               <span>{i18n.language.toUpperCase()}</span>

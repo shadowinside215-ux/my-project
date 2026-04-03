@@ -27,7 +27,7 @@ export const AdminImage: React.FC<AdminImageProps> = ({
   onUpload,
   onDelete,
   onClick,
-  aspectRatio = "aspect-square",
+  aspectRatio = "",
   noBorder = false
 }) => {
   const { isAdmin } = useAdmin();
@@ -82,7 +82,11 @@ export const AdminImage: React.FC<AdminImageProps> = ({
 
   return (
     <DraggableResizable id={id} className={cn("relative group", className)}>
-      <div className={cn("relative w-full h-full overflow-hidden", !noBorder && "luxury-border")}>
+      <div className={cn(
+        "relative w-full h-full overflow-hidden transition-all duration-700", 
+        aspectRatio,
+        !noBorder && "luxury-border"
+      )}>
         {src ? (
           <img 
             src={src} 

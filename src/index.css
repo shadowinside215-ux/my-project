@@ -72,3 +72,18 @@ html.lenis {
   background: #B39A6A;
   border-radius: 10px;
 }
+
+/* Font size scaling for DraggableResizable */
+.draggable-resizable-container {
+  font-size: var(--draggable-font-size, inherit);
+}
+
+.draggable-resizable-container h1,
+.draggable-resizable-container h2,
+.draggable-resizable-container h3,
+.draggable-resizable-container h4,
+.draggable-resizable-container p,
+.draggable-resizable-container span,
+.draggable-resizable-container a {
+  font-size: inherit !important;
+}

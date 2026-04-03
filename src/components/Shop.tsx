@@ -99,11 +99,10 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
 export const Collection: React.FC = () => {
   const { t } = useTranslation();
-  const { state, isAdmin, addProduct, updateImages, setPendingProduct } = useAdmin();
+  const { state, isAdmin, addProduct, updateImages, setPendingProduct, isScrollEnabled, setIsScrollEnabled } = useAdmin();
   const [activeCategory, setActiveCategory] = useState('all');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isCollectionVisible, setIsCollectionVisible] = useState(false);
 
   const handleAddProductClick = async (e: React.ChangeEvent<HTMLInputElement>, targetCategory?: string) => {
     const originalFile = e.target.files?.[0];
@@ -164,142 +163,131 @@ export const Collection: React.FC = () => {
     ? state.products 
     : state.products.filter(p => p.category === activeCategory);
 
+  if (!isScrollEnabled) return null;
+
   return (
-    <section id="collection" className="h-full md:py-32 bg-ivory p-4 md:p-8 flex flex-col overflow-hidden">
-      <div className="flex-shrink-0 mb-4 md:mb-12">
+    <section id="shop" className="min-h-screen bg-ivory p-4 md:p-8 flex flex-col overflow-hidden py-24">
+      <div className="flex-shrink-0 mb-12">
         <DraggableResizable id="collection-header">
           <h2 className="text-xl md:text-4xl font-serif text-charcoal mb-2 uppercase tracking-widest">{t('feature_grid_title')}</h2>
           <div className="luxury-divider" />
         </DraggableResizable>
       </div>
 
-      {!isCollectionVisible ? (
-        <div className="flex-1 flex items-center justify-center py-20">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsCollectionVisible(true)}
-            className="px-12 py-5 bg-navy text-ivory text-xs uppercase tracking-[0.5em] font-bold luxury-border hover:bg-gold hover:text-navy transition-all duration-500 shadow-2xl"
-          >
-            View Collection
-          </motion.button>
-        </div>
-      ) : (
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
-          <div className="flex justify-center mb-12 overflow-x-auto no-scrollbar pb-4">
-            <div className="flex space-x-8">
-              {CATEGORIES.map((category) => (
-                <button 
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={cn(
-                    "text-[10px] uppercase tracking-[0.4em] font-medium transition-all duration-500 relative py-2",
-                    activeCategory === category ? 'text-gold' : 'text-charcoal/30 hover:text-charcoal'
-                  )}
-                >
-                  {t(`category_${category}`, category)}
-                  {activeCategory === category && (
-                    <motion.div 
-                      layoutId="activeTab"
-                      className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Categories Grid with Images */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 flex-shrink-0 max-w-5xl mx-auto w-full px-4">
-            {CATEGORIES.filter(c => c !== 'all').map((category) => (
-              <div key={category} className="flex flex-col space-y-2">
-                <div className="relative aspect-[4/5] group/cat overflow-hidden luxury-border">
-                  <AdminImage 
-                    id={`cat-img-${category}`}
-                    src={state.categoryImages?.[category] || ''}
-                    alt={category}
-                    className="w-full h-full"
-                    onUpload={(url) => updateImages('categoryImages', { ...state.categoryImages, [category]: url })}
-                    onDelete={() => updateImages('categoryImages', { ...state.categoryImages, [category]: '' })}
-                    onClick={() => setActiveCategory(category)}
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+        className="flex-1 flex flex-col overflow-hidden"
+      >
+        <div className="flex justify-center mb-12 overflow-x-auto no-scrollbar pb-4">
+          <div className="flex space-x-8">
+            {CATEGORIES.map((category) => (
+              <button 
+                key={category}
+                onClick={() => setActiveCategory(category)}
+                className={cn(
+                  "text-[10px] uppercase tracking-[0.4em] font-medium transition-all duration-500 relative py-2",
+                  activeCategory === category ? 'text-gold' : 'text-charcoal/30 hover:text-charcoal'
+                )}
+              >
+                {t(`category_${category}`, category)}
+                {activeCategory === category && (
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-[1px] bg-gold"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
-                  <div 
-                    onClick={() => setActiveCategory(category)}
-                    className={cn(
-                      "absolute inset-0 bg-navy/0 group-hover/cat:bg-navy/20 transition-colors cursor-pointer",
-                      activeCategory === category && "bg-gold/10"
-                    )}
-                  />
-                </div>
-              </div>
+                )}
+              </button>
             ))}
           </div>
+        </div>
 
-          {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            <motion.div 
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product, index) => (
-                  <motion.div
-                    key={product.id}
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ 
-                      duration: 0.5,
-                      delay: index * 0.05,
-                      ease: [0.23, 1, 0.32, 1]
-                    }}
-                  >
-                    <ProductCard product={product} />
-                  </motion.div>
-                ))}
+        {/* Categories Grid with Images */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 flex-shrink-0 max-w-5xl mx-auto w-full px-4">
+          {CATEGORIES.filter(c => c !== 'all').map((category) => (
+            <div key={category} className="flex flex-col space-y-2">
+              <div className="relative aspect-[4/5] group/cat overflow-hidden luxury-border">
+                <AdminImage 
+                  id={`cat-img-${category}`}
+                  src={state.categoryImages?.[category] || ''}
+                  alt={category}
+                  className="w-full h-full"
+                  onUpload={(url) => updateImages('categoryImages', { ...state.categoryImages, [category]: url })}
+                  onDelete={() => updateImages('categoryImages', { ...state.categoryImages, [category]: '' })}
+                  onClick={() => setActiveCategory(category)}
+                />
+                <div 
+                  onClick={() => setActiveCategory(category)}
+                  className={cn(
+                    "absolute inset-0 bg-navy/0 group-hover/cat:bg-navy/20 transition-colors cursor-pointer",
+                    activeCategory === category && "bg-gold/10"
+                  )}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
 
-                {isAdmin && (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="relative flex flex-col items-center justify-center aspect-[3/4] luxury-border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors group"
-                  >
-                    {uploading ? (
-                      <Loader2 size={24} className="animate-spin text-gold" />
-                    ) : (
-                      <>
-                        {error && (
-                          <div className="flex flex-col items-center text-red-400 mb-2 px-4 text-center">
-                            <AlertCircle size={16} />
-                            <span className="text-[8px] uppercase tracking-widest mt-1">{error}</span>
-                          </div>
-                        )}
-                        <Plus size={24} className="text-gold group-hover:scale-110 transition-transform" />
-                        <span className="text-[8px] uppercase tracking-[0.2em] text-gold font-bold mt-2">Add Product</span>
-                      </>
-                    )}
-                    <input 
-                      type="file" 
-                      className="absolute inset-0 opacity-0 cursor-pointer" 
-                      accept="image/*"
-                      onChange={handleAddProductClick}
-                      disabled={uploading}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
+        {/* Products Grid */}
+        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+          <motion.div 
+            layout
+            className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ 
+                    duration: 0.5,
+                    delay: index * 0.05,
+                    ease: [0.23, 1, 0.32, 1]
+                  }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+
+              {isAdmin && (
+                <motion.div
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="relative flex flex-col items-center justify-center aspect-[3/4] luxury-border border-dashed border-gold/40 bg-gold/5 cursor-pointer hover:bg-gold/10 transition-colors group"
+                >
+                  {uploading ? (
+                    <Loader2 size={24} className="animate-spin text-gold" />
+                  ) : (
+                    <>
+                      {error && (
+                        <div className="flex flex-col items-center text-red-400 mb-2 px-4 text-center">
+                          <AlertCircle size={16} />
+                          <span className="text-[8px] uppercase tracking-widest mt-1">{error}</span>
+                        </div>
+                      )}
+                      <Plus size={24} className="text-gold group-hover:scale-110 transition-transform" />
+                      <span className="text-[8px] uppercase tracking-[0.2em] text-gold font-bold mt-2">Add Product</span>
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    className="absolute inset-0 opacity-0 cursor-pointer" 
+                    accept="image/*"
+                    onChange={handleAddProductClick}
+                    disabled={uploading}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </motion.div>
     </section>
   );
 };

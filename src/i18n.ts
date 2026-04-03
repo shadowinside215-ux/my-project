@@ -5,13 +5,13 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
-      hero_title: 'Timeless Menswear. Refined Presence.',
+      hero_title: 'TIMELESS MENSWEAR',
       hero_button: 'Discover the Collection',
       new_collection_title: 'New Collection',
       new_collection_subtitle: 'Luxury essentials for the modern gentleman',
       new_collection_button: 'View Collection',
       philosophy_title: 'Our Philosophy',
-      philosophy_text: "At MEN31, we believe that true luxury is not just about what you wear, but how you carry yourself. Our commitment to timeless elegance and unparalleled craftsmanship ensures that every piece in our collection is a testament to the modern gentleman's refined presence.",
+      philosophy_text: 'At MEN31, we believe in the art of timeless dressing. Our collections are crafted to embody the elegance and sophistication of the modern gentleman, combining classic design with luxurious materials.',
       philosophy_subtext: 'Each garment is meticulously crafted from the finest materials, blending traditional techniques with contemporary design to create a wardrobe that transcends fleeting trends.',
       feature_grid_title: 'Crafted for the Modern Gentleman',
       feature_1: 'The Perfect Suit',
