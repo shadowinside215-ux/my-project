@@ -3,8 +3,12 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
+import { AdminProvider } from './AdminContext';
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AdminProvider>
+      <App />
+    </AdminProvider>
   </StrictMode>,
 );

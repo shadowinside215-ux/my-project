@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A luxury menswear product",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Product name" },
+        "price": { "type": "number", "description": "Product price" },
+        "category": { "type": "string", "description": "Product category" },
+        "image": { "type": "string", "description": "Product image URL" }
+      },
+      "required": ["name", "price", "category", "image"]
+    },
+    "Layout": {
+      "title": "Layout",
+      "description": "Position and size of a draggable element",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Element ID" },
+        "x": { "type": "number", "description": "X position" },
+        "y": { "type": "number", "description": "Y position" },
+        "width": { "type": "number", "description": "Width" },
+        "height": { "type": "number", "description": "Height" }
+      },
+      "required": ["id", "x", "y"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "A global application setting",
+      "type": "object",
+      "properties": {
+        "value": { "type": "any", "description": "Setting value" }
+      },
+      "required": ["value"]
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Collection of products"
+    },
+    "layouts": {
+      "schema": "Layout",
+      "description": "Collection of layout configurations"
+    },
+    "settings": {
+      "schema": "Setting",
+      "description": "Collection of global settings"
+    }
+  }
+}

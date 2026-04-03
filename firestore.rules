@@ -1,0 +1,114 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: products
+// Document ID: auto-generated
+// Fields:
+//   - name: string (required) - Product name
+//   - price: number (required) - Product price
+//   - category: string (required) - Product category
+//   - image: string (required) - Product image URL
+//
+// Collection: layouts
+// Document ID: element ID (e.g., 'hero-text-block')
+// Fields:
+//   - id: string (required) - Element ID
+//   - x: number (required) - X position
+//   - y: number (required) - Y position
+//   - width: number (optional) - Width
+//   - height: number (optional) - Height
+//
+// Collection: settings
+// Document ID: setting key (e.g., 'heroImage')
+// Fields:
+//   - value: any (required) - Setting value
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "dragonballsam86@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidProduct(data) {
+      return hasRequiredFields(['name', 'price', 'category', 'image']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.price is number && data.price >= 0 &&
+             data.category is string &&
+             data.image is string;
+    }
+
+    function isValidLayout(data) {
+      return hasRequiredFields(['id', 'x', 'y']) &&
+             data.id is string &&
+             data.x is number &&
+             data.y is number &&
+             (!('width' in data) || data.width is number) &&
+             (!('height' in data) || data.height is number);
+    }
+
+    function isValidSetting(data) {
+      return hasRequiredFields(['value']);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    // Products: Public read, Admin write
+    match /products/{productId} {
+      allow read: if true; // Explicitly allowed for public website
+      allow create: if isAdmin() && isValidProduct(request.resource.data);
+      allow update: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Layouts: Public read, Admin write
+    match /layouts/{layoutId} {
+      allow read: if true; // Explicitly allowed for public website
+      allow create: if isAdmin() && isValidLayout(request.resource.data);
+      allow update: if isAdmin() && isValidLayout(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Settings: Public read, Admin write
+    match /settings/{settingId} {
+      allow read: if true; // Explicitly allowed for public website
+      allow create: if isAdmin() && isValidSetting(request.resource.data);
+      allow update: if isAdmin() && isValidSetting(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Users: Owner read/write, Admin read/write
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+  }
+}

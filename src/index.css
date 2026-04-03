@@ -1,39 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, serif;
 
-  --color-navy: #000080;
-  --color-gold: #D4AF37;
-  --color-ivory: #FFFFF0;
-  
-  --color-navy-light: #0000A0;
-  --color-gold-light: #E5C048;
+  --color-navy: #0F1A2B;
+  --color-ivory: #F5F1E8;
+  --color-gold: #B39A6A;
+  --color-charcoal: #1C1C1C;
+  --color-platinum: #C7CCD3;
 }
 
 @layer base {
+  html {
+    font-size: 16px;
+  }
   body {
-    @apply bg-ivory text-navy font-sans antialiased;
+    @apply bg-ivory text-charcoal font-sans antialiased;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-serif font-medium tracking-tight;
   }
 }
 
-.admin-dashed-border {
-  @apply border-2 border-dashed border-gold/50;
+.luxury-border {
+  @apply border border-platinum;
 }
 
-.resize-handle {
-  @apply absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize bg-gold/30 hover:bg-gold/60 transition-colors;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+.luxury-divider {
+  @apply w-12 h-[1px] bg-gold mb-4;
 }
 
-.move-handle {
-  @apply absolute -top-3 -left-3 w-8 h-8 bg-gold text-navy rounded-full flex items-center justify-center cursor-move shadow-lg z-50;
+.luxury-button {
+  @apply bg-navy text-ivory px-6 py-2.5 text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:opacity-90;
+}
+
+.luxury-button-outline {
+  @apply border border-navy text-navy px-6 py-2.5 text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:bg-navy hover:text-ivory;
 }
 
 /* Lenis smooth scroll */
@@ -55,4 +60,15 @@ html.lenis {
 
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #B39A6A;
+  border-radius: 10px;
 }

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from '../AdminContext';
-import { LogIn, LogOut, Globe, Menu, X } from 'lucide-react';
+import { LogIn, LogOut, Globe, Menu, X, Search, Crown } from 'lucide-react';
 import { DraggableResizable } from './DraggableResizable';
+import { AdminImage } from './AdminImage';
 import { motion, AnimatePresence } from 'motion/react';
 
 export const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { isAdmin, login, logout, state } = useAdmin();
+  const { isAdmin, login, logout, state, updateImages } = useAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
@@ -17,42 +18,49 @@ export const Navbar: React.FC = () => {
     i18n.changeLanguage(i18n.language === 'en' ? 'fr' : 'en');
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (login(username, password)) {
+  const handleLogin = async () => {
+    const success = await login();
+    if (success) {
       setShowLogin(false);
-      setUsername('');
-      setPassword('');
-    } else {
-      alert('Invalid credentials');
     }
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-ivory/90 backdrop-blur-md z-[100] border-b border-gold/20">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <DraggableResizable id="nav-logo">
-          <div className="flex flex-col">
-            <h1 className="text-3xl font-serif font-bold tracking-tighter text-navy">MEN 31</h1>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-gold font-medium">
-              {t('tagline')}
-            </p>
-          </div>
-        </DraggableResizable>
+    <nav className="fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20">
+      <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+        <div className="flex items-center space-x-8">
+          <AdminImage 
+            id="nav-logo-img"
+            src={state.logoImage}
+            alt="Logo"
+            className="w-32 h-12"
+            onUpload={(url) => updateImages('logoImage', url)}
+            onClick={() => window.location.reload()}
+          />
+          <DraggableResizable id="nav-tagline">
+            <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap">
+              {t('tagline', 'Vêtements Intemporels')}
+            </span>
+          </DraggableResizable>
+        </div>
 
         <div className="hidden md:flex items-center space-x-12">
           <DraggableResizable id="nav-links">
-            <div className="flex items-center space-x-8 text-sm uppercase tracking-widest font-medium">
-              <a href="#collection" className="hover:text-gold transition-colors">{t('collection')}</a>
-              <a href="#philosophy" className="hover:text-gold transition-colors">{t('philosophy')}</a>
-              <a href="#contact" className="hover:text-gold transition-colors">{t('contact')}</a>
+            <div className="flex items-center space-x-10 text-[11px] uppercase tracking-[0.25em] font-light">
+              <a href="#" className="hover:text-gold transition-colors">Home</a>
+              <a href="#collection" className="hover:text-gold transition-colors">Collection</a>
+              <a href="#about" className="hover:text-gold transition-colors">About</a>
+              <a href="#contact" className="hover:text-gold transition-colors">Contact</a>
+              <button className="hover:text-gold transition-colors">
+                <Search size={16} />
+              </button>
             </div>
           </DraggableResizable>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <button 
               onClick={toggleLanguage}
-              className="flex items-center space-x-2 text-xs uppercase tracking-widest hover:text-gold transition-colors"
+              className="flex items-center space-x-2 text-[10px] uppercase tracking-widest hover:text-gold transition-colors"
             >
               <Globe size={14} />
               <span>{i18n.language.toUpperCase()}</span>
@@ -61,7 +69,7 @@ export const Navbar: React.FC = () => {
             {isAdmin ? (
               <button 
                 onClick={logout}
-                className="flex items-center space-x-2 bg-navy text-ivory px-4 py-2 text-xs uppercase tracking-widest hover:bg-navy-light transition-colors"
+                className="flex items-center space-x-2 border border-gold/30 px-4 py-2 text-[10px] uppercase tracking-widest hover:bg-gold hover:text-navy transition-all"
               >
                 <LogOut size={14} />
                 <span>{t('admin_logout')}</span>
@@ -69,15 +77,15 @@ export const Navbar: React.FC = () => {
             ) : (
               <button 
                 onClick={() => setShowLogin(true)}
-                className="text-navy hover:text-gold transition-colors"
+                className="text-ivory hover:text-gold transition-colors"
               >
-                <LogIn size={20} />
+                <LogIn size={18} />
               </button>
             )}
           </div>
         </div>
 
-        <button className="md:hidden text-navy" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className="md:hidden text-ivory" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <X /> : <Menu />}
         </button>
       </div>
@@ -89,11 +97,12 @@ export const Navbar: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-ivory border-b border-gold/20 px-6 py-8 flex flex-col space-y-6 text-center uppercase tracking-widest text-sm font-medium"
+            className="md:hidden bg-navy border-b border-gold/20 px-8 py-10 flex flex-col space-y-8 text-center uppercase tracking-[0.2em] text-xs font-light"
           >
-            <a href="#collection" onClick={() => setIsMenuOpen(false)}>{t('collection')}</a>
-            <a href="#philosophy" onClick={() => setIsMenuOpen(false)}>{t('philosophy')}</a>
-            <a href="#contact" onClick={() => setIsMenuOpen(false)}>{t('contact')}</a>
+            <a href="#" onClick={() => setIsMenuOpen(false)}>Home</a>
+            <a href="#collection" onClick={() => setIsMenuOpen(false)}>Collection</a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
+            <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
             <button onClick={toggleLanguage} className="flex items-center justify-center space-x-2">
               <Globe size={14} />
               <span>{i18n.language.toUpperCase()}</span>
@@ -105,43 +114,27 @@ export const Navbar: React.FC = () => {
       {/* Login Modal */}
       <AnimatePresence>
         {showLogin && (
-          <div className="fixed inset-0 bg-navy/40 backdrop-blur-sm flex items-center justify-center z-[200] p-6">
+          <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center z-[200] p-6">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-ivory p-8 max-w-md w-full border border-gold shadow-2xl"
+              className="bg-ivory p-10 max-w-md w-full border border-platinum shadow-2xl text-center"
             >
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-serif text-navy">Admin Access</h2>
-                <button onClick={() => setShowLogin(false)}><X /></button>
+              <div className="flex justify-between items-center mb-10">
+                <h2 className="text-2xl font-serif text-navy">Admin Portal</h2>
+                <button onClick={() => setShowLogin(false)} className="text-navy"><X /></button>
               </div>
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div>
-                  <label className="block text-xs uppercase tracking-widest mb-2">Username</label>
-                  <input 
-                    type="text" 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent border-b border-navy/20 py-2 focus:border-gold outline-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase tracking-widest mb-2">Password</label>
-                  <input 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-b border-navy/20 py-2 focus:border-gold outline-none transition-colors"
-                  />
-                </div>
+              <div className="space-y-8">
+                <p className="text-sm text-charcoal/60">Please sign in with your authorized Google account to access admin features.</p>
                 <button 
-                  type="submit"
-                  className="w-full bg-navy text-ivory py-4 uppercase tracking-[0.2em] text-xs hover:bg-navy-light transition-colors"
+                  onClick={handleLogin}
+                  className="luxury-button w-full flex items-center justify-center space-x-3"
                 >
-                  Enter Dashboard
+                  <Globe size={18} />
+                  <span>Sign in with Google</span>
                 </button>
-              </form>
+              </div>
             </motion.div>
           </div>
         )}

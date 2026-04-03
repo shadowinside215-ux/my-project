@@ -66,23 +66,27 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
         y: layout.y,
         width: layout.width,
         height: layout.height,
-        position: isAdmin ? 'relative' : 'static',
+        position: 'relative',
+        zIndex: isAdmin ? 100 : 'auto',
       }}
       className={cn(
         className,
-        isAdmin && "admin-dashed-border group"
+        isAdmin && "hover:outline hover:outline-1 hover:outline-gold/50 group"
       )}
     >
       {isAdmin && (
         <>
+          {/* Move Handle */}
           <div 
-            className="move-handle"
+            className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gold text-navy p-1 rounded-t-md cursor-move z-[110] opacity-0 group-hover:opacity-100 transition-opacity"
             onPointerDown={(e) => dragControls.start(e)}
           >
-            <GripVertical size={16} />
+            <GripVertical size={12} />
           </div>
+          
+          {/* Resize Scale Circle */}
           <div 
-            className="resize-handle opacity-0 group-hover:opacity-100"
+            className="absolute -bottom-1 -right-1 w-3 h-3 bg-gold rounded-full cursor-nwse-resize z-[110] opacity-0 group-hover:opacity-100 transition-opacity border border-navy shadow-sm"
             onMouseDown={handleResize}
           />
         </>

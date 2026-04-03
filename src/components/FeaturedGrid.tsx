@@ -1,34 +1,55 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { DraggableResizable } from './DraggableResizable';
 import { useAdmin } from '../AdminContext';
+import { DraggableResizable } from './DraggableResizable';
+import { AdminImage } from './AdminImage';
 
-export const FeaturedGrid: React.FC = () => {
-  const { state } = useAdmin();
+export const NewCollection: React.FC = () => {
+  const { t } = useTranslation();
+  const { state, updateImages } = useAdmin();
 
   return (
-    <section className="py-32 px-6 max-w-7xl mx-auto overflow-hidden">
-      <DraggableResizable id="featured-grid-unit">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {state.lookbookImages.map((img, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.2, duration: 0.8 }}
-              viewport={{ once: true }}
-              className="aspect-[4/5] overflow-hidden border border-gold/10"
+    <section id="collection" className="py-24 bg-ivory overflow-hidden p-8">
+      <div className="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <DraggableResizable id="new-collection-text">
+            <h2 className="text-4xl md:text-6xl font-serif text-charcoal leading-tight mb-6">
+              {t('new_collection_title', 'New Collection')}
+            </h2>
+            <p className="text-lg text-charcoal/70 mb-10 max-w-md">
+              {t('new_collection_subtitle', 'Luxury essentials for the modern gentleman')}
+            </p>
+            <a 
+              href="#shop"
+              className="luxury-button inline-block px-10 py-4"
             >
-              <img 
-                src={img} 
-                alt={`Lookbook ${i + 1}`} 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
-                referrerPolicy="no-referrer"
-              />
-            </motion.div>
-          ))}
-        </div>
-      </DraggableResizable>
+              {t('new_collection_button', 'VIEW COLLECTION')}
+            </a>
+          </DraggableResizable>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 1.05 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="relative"
+        >
+          <AdminImage 
+            id="new-collection-image"
+            src={state.newCollectionImage}
+            alt="New Collection"
+            className="w-full h-[600px] object-cover"
+            onUpload={(url) => updateImages('newCollectionImage', url)}
+          />
+        </motion.div>
+      </div>
     </section>
   );
 };
