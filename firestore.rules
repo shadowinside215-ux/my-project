@@ -65,11 +65,13 @@ service cloud.firestore {
 
     function isValidLayout(data) {
       return hasRequiredFields(['id', 'x', 'y']) &&
+             hasOnlyAllowedFields(['id', 'x', 'y', 'width', 'height', 'fontSize']) &&
              data.id is string &&
              data.x is number &&
              data.y is number &&
-             (!('width' in data) || data.width is number) &&
-             (!('height' in data) || data.height is number);
+             (!('width' in data) || data.width is number || data.width == null) &&
+             (!('height' in data) || data.height is number || data.height == null) &&
+             (!('fontSize' in data) || data.fontSize is number);
     }
 
     function isValidSetting(data) {

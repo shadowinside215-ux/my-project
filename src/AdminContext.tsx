@@ -80,6 +80,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setUser(user);
       if (user?.email === 'dragonballsam86@gmail.com') {
         setIsAdmin(true);
+      } else if (!user && !getLocalStorage('isAdmin', false)) {
+        // Only reset if not manually logged in via credentials
+        setIsAdmin(false);
       }
     });
     return () => unsub();
@@ -170,7 +173,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const currentLayout = prev.layouts[id] || { id, x: 0, y: 0 };
       const updatedLayout = { ...currentLayout, ...layout };
       
-      if (isAdmin) {
+      if (isAdmin && user) {
         // Debounce Firestore update
         const timeoutId = (window as any)[`layout_timeout_${id}`];
         if (timeoutId) clearTimeout(timeoutId);
@@ -208,7 +211,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newProduct = { ...product, id };
     setState(prev => ({ ...prev, products: [...prev.products, newProduct] }));
     
-    if (isAdmin) {
+    if (isAdmin && user) {
       try {
         await setDoc(doc(db, 'products', id), newProduct);
       } catch (error) {
@@ -220,7 +223,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const removeProduct = async (id: string) => {
     setState(prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }));
     
-    if (isAdmin) {
+    if (isAdmin && user) {
       try {
         await deleteDoc(doc(db, 'products', id));
       } catch (error) {
@@ -235,7 +238,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       products: prev.products.map(p => p.id === id ? { ...p, ...updates } : p)
     }));
     
-    if (isAdmin) {
+    if (isAdmin && user) {
       try {
         await updateDoc(doc(db, 'products', id), updates);
       } catch (error) {
@@ -247,7 +250,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateImages = async (key: keyof AppState, value: any) => {
     setState(prev => ({ ...prev, [key]: value }));
     
-    if (isAdmin) {
+    if (isAdmin && user) {
       try {
         await setDoc(doc(db, 'settings', key as string), { value }, { merge: true });
       } catch (error) {
@@ -278,6 +281,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const saveChanges = async () => {
+    if (!isAdmin) {
+      setError('You must be an admin to save changes.');
+      return;
+    }
+    if (!user) {
+      setError('Please sign in with Google to save changes to the cloud.');
+      return;
+    }
     try {
       const { products, layouts, ...settings } = state;
       const batch = writeBatch(db);
