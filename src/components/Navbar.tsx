@@ -45,62 +45,62 @@ export const Navbar: React.FC = () => {
         />
       </div>
 
-      {/* Right: Desktop Links */}
-      <div className="hidden md:flex items-center space-x-[30px]">
+      {/* Right: Links (Visible on both Desktop and Mobile) */}
+      <div className="flex items-center space-x-[15px] md:space-x-[30px]">
         <DraggableResizable id="nav-links">
-          <div className="flex items-center space-x-[30px] font-sans text-white text-[12px] tracking-[3px] uppercase">
+          <div className="flex items-center space-x-[10px] md:space-x-[30px] font-sans text-white text-[8px] md:text-[12px] tracking-[1px] md:tracking-[3px] uppercase">
             <a href="#" className="hover:text-gold transition-colors">Home</a>
             <a href="#collection" className="hover:text-gold transition-colors">Collection</a>
             <a href="#about" className="hover:text-gold transition-colors">About</a>
             <a href="#contact" className="hover:text-gold transition-colors">Contact</a>
-            <button className="hover:text-gold transition-colors">
+            <button className="hover:text-gold transition-colors max-md:hidden">
               <Search size={14} />
             </button>
           </div>
         </DraggableResizable>
 
-        <div className="flex items-center space-x-6 border-l border-white/10 pl-6">
+        <div className="flex items-center space-x-2 md:space-x-6 border-l border-white/10 pl-2 md:pl-6">
           <button 
             onClick={() => setIsScrollEnabled(!isScrollEnabled)}
             className={cn(
-              "p-2 rounded-full transition-all duration-500",
+              "p-1 md:p-2 rounded-full transition-all duration-500",
               isScrollEnabled ? "bg-gold text-navy shadow-lg shadow-gold/20" : "text-white/40 hover:text-white"
             )}
             title={isScrollEnabled ? "Disable Scroll" : "Enable Scroll"}
           >
-            <MousePointer2 size={16} className={cn(isScrollEnabled && "animate-bounce")} />
+            <MousePointer2 size={12} className={cn("md:w-4 md:h-4", isScrollEnabled && "animate-bounce")} />
           </button>
 
           <button 
             onClick={toggleLanguage}
-            className="flex items-center space-x-2 uppercase tracking-widest hover:text-gold transition-colors text-[10px] text-white"
+            className="flex items-center space-x-1 md:space-x-2 uppercase tracking-widest hover:text-gold transition-colors text-[8px] md:text-[10px] text-white"
           >
-            <Globe size={14} />
+            <Globe size={12} className="md:w-3.5 md:h-3.5" />
             <span>{i18n.language.toUpperCase()}</span>
           </button>
 
           {isAdmin ? (
             <button 
               onClick={logout}
-              className="flex items-center space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all px-3 py-1 text-[10px] text-gold"
+              className="flex items-center space-x-1 md:space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all px-2 md:px-3 py-0.5 md:py-1 text-[8px] md:text-[10px] text-gold"
             >
-              <LogOut size={14} />
-              <span>LOGOUT</span>
+              <LogOut size={12} className="md:w-3.5 md:h-3.5" />
+              <span className="max-md:hidden">LOGOUT</span>
             </button>
           ) : (
             <button 
               onClick={() => setShowLogin(true)}
               className="text-white hover:text-gold transition-colors"
             >
-              <LogIn size={18} />
+              <LogIn size={14} className="md:w-[18px] md:h-[18px]" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Button (Hidden as links are now always visible) */}
       <button 
-        className="md:hidden text-white"
+        className="hidden text-white"
         onClick={() => setIsMenuOpen(!isMenuOpen)}
       >
         {isMenuOpen ? <X size={24} /> : <Menu size={24} />}

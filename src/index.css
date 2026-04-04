@@ -57,6 +57,29 @@
   .nav-shadow {
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-gold);
+    opacity: 0.2;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
 }
 
 /* Draggable and Resizable styles */

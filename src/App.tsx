@@ -108,7 +108,7 @@ export default function App() {
     <div 
       className={cn(
         "w-full bg-ivory selection:bg-gold selection:text-white",
-        isMobile && "h-screen overflow-hidden relative"
+        isMobile && "h-screen overflow-y-auto relative overscroll-y-contain custom-scrollbar"
       )}
     >
       <AdminPanel />
@@ -127,7 +127,7 @@ export default function App() {
           marginLeft: `-${(100 / scale) / 2}%`
         } : {}}
       >
-        <div ref={contentRef} className="w-full">
+        <div ref={contentRef} className={cn("w-full", isMobile && "min-h-[100.1%]")}>
           <Navbar />
           <main className="w-full">
             <Hero />

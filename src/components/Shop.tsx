@@ -22,7 +22,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
   };
 
   return (
-    <div className="group relative flex flex-col h-full">
+    <div className="group relative flex flex-col h-full max-w-2xl mx-auto w-full">
       <AdminImage 
         id={`product-img-${product.id}`}
         src={product.image}
@@ -33,7 +33,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         className="w-full"
       />
       
-      <div className="mt-3 md:mt-6 text-center space-y-1 md:space-y-2 flex-1 flex flex-col justify-between pb-2">
+      <div className="mt-6 text-center space-y-2 flex-1 flex flex-col justify-between pb-8">
         {isEditing ? (
           <div className="space-y-3 p-4 bg-white/50 backdrop-blur-sm luxury-border">
             <input 
@@ -67,12 +67,12 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
           </div>
         ) : (
           <DraggableResizable id={`product-info-${product.id}`}>
-            <div className="flex flex-col items-center px-1">
-              <p className="text-[6px] md:text-[8px] uppercase tracking-[0.2em] md:tracking-[0.3em] text-gold/60 font-bold">{t(`category_${product.category}`, product.category)}</p>
-              <h3 className="text-[10px] md:text-sm font-serif text-charcoal group-hover:text-gold transition-colors duration-300 line-clamp-1">
+            <div className="flex flex-col items-center px-4">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-gold/60 font-bold mb-1">{t(`category_${product.category}`, product.category)}</p>
+              <h3 className="text-lg md:text-xl font-serif text-charcoal group-hover:text-gold transition-colors duration-300">
                 {product.name}
               </h3>
-              <p className="text-[9px] md:text-xs font-sans text-charcoal/60 tracking-widest group-hover:text-gold transition-colors duration-300">
+              <p className="text-sm md:text-base font-sans text-charcoal/60 tracking-widest group-hover:text-gold transition-colors duration-300 mt-1">
                 {product.price} DH
               </p>
             </div>
@@ -215,7 +215,7 @@ export const Collection: React.FC = () => {
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           <motion.div 
             layout
-            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
+            className="grid grid-cols-1 gap-12 md:gap-24"
           >
             <AnimatePresence mode="popLayout">
               {filteredProducts.map((product, index) => (
