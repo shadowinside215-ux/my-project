@@ -65,15 +65,17 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
             </div>
           </div>
         ) : (
-          <>
-            <p className="text-[8px] uppercase tracking-[0.3em] text-gold/60 font-bold">{t(`category_${product.category}`, product.category)}</p>
-            <h3 className="text-sm font-serif text-charcoal group-hover:text-gold transition-colors duration-300">
-              {product.name}
-            </h3>
-            <p className="text-xs font-sans text-charcoal/60 tracking-widest group-hover:text-gold transition-colors duration-300">
-              {product.price} DH
-            </p>
-          </>
+          <DraggableResizable id={`product-info-${product.id}`}>
+            <div className="flex flex-col items-center">
+              <p className="text-[8px] uppercase tracking-[0.3em] text-gold/60 font-bold">{t(`category_${product.category}`, product.category)}</p>
+              <h3 className="text-sm font-serif text-charcoal group-hover:text-gold transition-colors duration-300">
+                {product.name}
+              </h3>
+              <p className="text-xs font-sans text-charcoal/60 tracking-widest group-hover:text-gold transition-colors duration-300">
+                {product.price} DH
+              </p>
+            </div>
+          </DraggableResizable>
         )}
       </div>
 
@@ -167,13 +169,13 @@ export const Collection: React.FC = () => {
 
   return (
     <section id="shop" className="min-h-screen bg-ivory p-4 md:p-8 flex flex-col overflow-hidden py-24">
-      <div className="flex-shrink-0 mb-12">
-        <DraggableResizable id="collection-header">
-          <h2 className="text-xl md:text-4xl font-serif text-charcoal mb-2 uppercase tracking-widest">{t('feature_grid_title')}</h2>
-          <div className="luxury-divider" />
+      <div className="flex justify-center mb-12">
+        <DraggableResizable id="shop-title">
+          <h2 className="font-serif text-[42px] font-normal text-center">
+            {t('shop_title', 'Our Collection')}
+          </h2>
         </DraggableResizable>
       </div>
-
       <motion.div 
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -202,32 +204,6 @@ export const Collection: React.FC = () => {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Categories Grid with Images */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 flex-shrink-0 max-w-5xl mx-auto w-full px-4">
-          {CATEGORIES.filter(c => c !== 'all').map((category) => (
-            <div key={category} className="flex flex-col space-y-2">
-              <div className="relative aspect-[4/5] group/cat overflow-hidden luxury-border">
-                <AdminImage 
-                  id={`cat-img-${category}`}
-                  src={state.categoryImages?.[category] || ''}
-                  alt={category}
-                  className="w-full h-full"
-                  onUpload={(url) => updateImages('categoryImages', { ...state.categoryImages, [category]: url })}
-                  onDelete={() => updateImages('categoryImages', { ...state.categoryImages, [category]: '' })}
-                  onClick={() => setActiveCategory(category)}
-                />
-                <div 
-                  onClick={() => setActiveCategory(category)}
-                  className={cn(
-                    "absolute inset-0 bg-navy/0 group-hover/cat:bg-navy/20 transition-colors cursor-pointer",
-                    activeCategory === category && "bg-gold/10"
-                  )}
-                />
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* Products Grid */}

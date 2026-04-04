@@ -81,7 +81,7 @@ export const AdminImage: React.FC<AdminImageProps> = ({
   };
 
   return (
-    <DraggableResizable id={id} className={cn("relative group", className)}>
+    <DraggableResizable id={id} className={cn("relative group", className)} isText={false}>
       <div className={cn(
         "relative w-full h-full overflow-hidden transition-all duration-700", 
         aspectRatio,

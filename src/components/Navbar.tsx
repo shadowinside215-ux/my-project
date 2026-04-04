@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAdmin } from '../AdminContext';
-import { LogIn, LogOut, Globe, Menu, X, Search, Crown } from 'lucide-react';
-import { DraggableResizable } from './DraggableResizable';
-import { AdminImage } from './AdminImage';
+import { Search, Menu, X, Crown, Globe, LogIn, LogOut, MousePointer2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AdminImage } from './AdminImage';
+import { DraggableResizable } from './DraggableResizable';
 import { cn } from '../lib/utils';
 
 export const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { isAdmin, error, login, logout, state, updateImages, isScrollEnabled, setIsScrollEnabled, isMobile } = useAdmin();
+  const { isAdmin, error, login, logout, state, updateImages, isMobile, isScrollEnabled, setIsScrollEnabled } = useAdmin();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
-  const showCompact = isMobile || !isScrollEnabled;
 
   const toggleLanguage = () => {
     const langs = ['fr', 'en', 'ar'];
@@ -33,111 +31,84 @@ export const Navbar: React.FC = () => {
     }
   };
 
-  const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
-    if (!isScrollEnabled) {
-      setIsScrollEnabled(true);
-      // Small delay to allow layout to update before scrolling
-      setTimeout(() => {
-        const element = document.querySelector(target);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 100);
-    }
-    setIsMenuOpen(false);
-  };
-
   return (
-    <nav className={cn(
-      "fixed top-0 left-0 w-full bg-navy text-ivory z-[100] border-b border-gold/20 transition-all duration-700",
-      showCompact ? "h-12" : "h-24"
-    )}>
-      <div className="max-w-[1800px] mx-auto px-4 md:px-8 h-full flex items-center justify-between">
-        <div className="flex items-center space-x-2 md:space-x-4 cursor-pointer" onClick={() => window.location.reload()}>
-          <AdminImage 
-            id="nav-logo-img"
-            src={state.logoImage}
-            alt="Logo"
-            className={cn(
-              "transition-all duration-700",
-              showCompact ? "w-8 h-8" : "w-20 h-20"
-            )}
-            onUpload={(url) => updateImages('logoImage', url)}
-            noBorder
-          />
-          <div className="flex flex-col -space-y-1">
-            <span className={cn(
-              "font-serif text-platinum tracking-widest leading-none transition-all duration-700",
-              showCompact ? "text-sm" : "text-2xl"
-            )}>MEN</span>
-            <span className={cn(
-              "font-serif text-gold tracking-widest leading-none transition-all duration-700",
-              showCompact ? "text-base" : "text-3xl"
-            )}>31</span>
+    <nav className="h-[70px] bg-navy flex justify-between items-center px-[60px] max-md:px-[24px] relative z-[100] nav-shadow">
+      {/* Left: Brand */}
+      <div className="flex items-center space-x-4">
+        <AdminImage 
+          id="nav-logo-img"
+          src={state.logoImage}
+          alt="Logo"
+          className="w-10 h-10 transition-all duration-700"
+          onUpload={(url) => updateImages('logoImage', url)}
+          noBorder
+        />
+        <div className="flex items-center space-x-2">
+          <Crown size={22} className="text-white" />
+          <span className="font-serif text-white text-[22px] tracking-tight">MEN31</span>
+        </div>
+      </div>
+
+      {/* Right: Desktop Links */}
+      <div className="hidden md:flex items-center space-x-[30px]">
+        <DraggableResizable id="nav-links">
+          <div className="flex items-center space-x-[30px] font-sans text-white text-[12px] tracking-[3px] uppercase">
+            <a href="#" className="hover:text-gold transition-colors">Home</a>
+            <a href="#collection" className="hover:text-gold transition-colors">Collection</a>
+            <a href="#about" className="hover:text-gold transition-colors">About</a>
+            <a href="#contact" className="hover:text-gold transition-colors">Contact</a>
+            <button className="hover:text-gold transition-colors">
+              <Search size={14} />
+            </button>
           </div>
-          {showCompact ? null : (
-            <DraggableResizable id="nav-tagline">
-              <span className="hidden lg:block text-[10px] uppercase tracking-[0.4em] text-gold/80 font-light whitespace-nowrap ml-8">
-                {t('tagline', 'Vêtements Intemporels')}
-              </span>
-            </DraggableResizable>
+        </DraggableResizable>
+
+        <div className="flex items-center space-x-6 border-l border-white/10 pl-6">
+          <button 
+            onClick={() => setIsScrollEnabled(!isScrollEnabled)}
+            className={cn(
+              "p-2 rounded-full transition-all duration-500",
+              isScrollEnabled ? "bg-gold text-navy shadow-lg shadow-gold/20" : "text-white/40 hover:text-white"
+            )}
+            title={isScrollEnabled ? "Disable Scroll" : "Enable Scroll"}
+          >
+            <MousePointer2 size={16} className={cn(isScrollEnabled && "animate-bounce")} />
+          </button>
+
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center space-x-2 uppercase tracking-widest hover:text-gold transition-colors text-[10px] text-white"
+          >
+            <Globe size={14} />
+            <span>{i18n.language.toUpperCase()}</span>
+          </button>
+
+          {isAdmin ? (
+            <button 
+              onClick={logout}
+              className="flex items-center space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all px-3 py-1 text-[10px] text-gold"
+            >
+              <LogOut size={14} />
+              <span>LOGOUT</span>
+            </button>
+          ) : (
+            <button 
+              onClick={() => setShowLogin(true)}
+              className="text-white hover:text-gold transition-colors"
+            >
+              <LogIn size={18} />
+            </button>
           )}
         </div>
-
-        <div className="hidden md:flex items-center space-x-12">
-          <DraggableResizable id="nav-links">
-            <div className={cn(
-              "flex items-center space-x-6 md:space-x-10 uppercase tracking-[0.25em] font-light transition-all duration-700",
-              showCompact ? "text-[8px]" : "text-[11px]"
-            )}>
-              <a href="#" className="hover:text-gold transition-colors">Home</a>
-              <a href="#shop" onClick={(e) => handleNavLinkClick(e, '#shop')} className="hover:text-gold transition-colors">Collection</a>
-              <a href="#about" onClick={(e) => handleNavLinkClick(e, '#about')} className="hover:text-gold transition-colors">About</a>
-              <a href="#contact" onClick={(e) => handleNavLinkClick(e, '#contact')} className="hover:text-gold transition-colors">Contact</a>
-              <button className="hover:text-gold transition-colors">
-                <Search size={showCompact ? 12 : 16} />
-              </button>
-            </div>
-          </DraggableResizable>
-
-          <div className="flex items-center space-x-6">
-            <button 
-              onClick={toggleLanguage}
-              className={cn(
-                "flex items-center space-x-2 uppercase tracking-widest hover:text-gold transition-colors",
-                showCompact ? "text-[8px]" : "text-[10px]"
-              )}
-            >
-              <Globe size={showCompact ? 12 : 14} />
-              <span>{i18n.language.toUpperCase()}</span>
-            </button>
-
-            {isAdmin ? (
-              <button 
-                onClick={logout}
-                className={cn(
-                  "flex items-center space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all",
-                  showCompact ? "px-2 py-1 text-[8px]" : "px-4 py-2 text-[10px]"
-                )}
-              >
-                <LogOut size={showCompact ? 12 : 14} />
-                <span>{t('admin_logout')}</span>
-              </button>
-            ) : (
-              <button 
-                onClick={() => setShowLogin(true)}
-                className="text-ivory hover:text-gold transition-colors"
-              >
-                <LogIn size={showCompact ? 14 : 18} />
-              </button>
-            )}
-          </div>
-        </div>
-
-        <button className="md:hidden text-ivory" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <X size={showCompact ? 18 : 24} /> : <Menu size={showCompact ? 18 : 24} />}
-        </button>
       </div>
+
+      {/* Mobile Menu Button */}
+      <button 
+        className="md:hidden text-white"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -146,12 +117,12 @@ export const Navbar: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-navy border-b border-gold/20 px-8 py-10 flex flex-col space-y-8 text-center uppercase tracking-[0.2em] text-xs font-light"
+            className="absolute top-[70px] left-0 w-full bg-navy border-t border-white/10 px-8 py-10 flex flex-col space-y-6 text-center font-sans text-white text-[12px] tracking-[3px] uppercase z-[99]"
           >
             <a href="#" onClick={() => setIsMenuOpen(false)}>Home</a>
-            <a href="#shop" onClick={(e) => handleNavLinkClick(e, '#shop')}>Collection</a>
-            <a href="#about" onClick={(e) => handleNavLinkClick(e, '#about')}>About</a>
-            <a href="#contact" onClick={(e) => handleNavLinkClick(e, '#contact')}>Contact</a>
+            <a href="#collection" onClick={() => setIsMenuOpen(false)}>Collection</a>
+            <a href="#about" onClick={() => setIsMenuOpen(false)}>About</a>
+            <a href="#contact" onClick={() => setIsMenuOpen(false)}>Contact</a>
             <button onClick={toggleLanguage} className="flex items-center justify-center space-x-2">
               <Globe size={14} />
               <span>{i18n.language.toUpperCase()}</span>
@@ -163,12 +134,12 @@ export const Navbar: React.FC = () => {
       {/* Login Modal */}
       <AnimatePresence>
         {showLogin && (
-          <div className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm flex items-center justify-center z-[200] p-6">
+          <div className="fixed inset-0 bg-navy/60 backdrop-blur-sm flex items-center justify-center z-[200] p-6">
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-ivory p-10 max-w-md w-full border border-platinum shadow-2xl"
+              className="bg-ivory p-10 max-w-md w-full border border-gold/20 shadow-2xl"
             >
               <div className="flex justify-between items-center mb-10">
                 <h2 className="text-2xl font-serif text-navy">Admin Portal</h2>
@@ -181,26 +152,26 @@ export const Navbar: React.FC = () => {
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-charcoal/60">Username</label>
+                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-navy/60">Username</label>
                   <input 
                     type="text" 
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-charcoal"
+                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-navy"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-charcoal/60">Password</label>
+                  <label className="block text-[10px] uppercase tracking-widest mb-3 text-navy/60">Password</label>
                   <input 
                     type="password" 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-charcoal"
+                    className="w-full bg-transparent border-b border-navy/10 py-2 focus:border-gold outline-none transition-colors text-navy"
                   />
                 </div>
                 <button 
                   type="submit"
-                  className="luxury-button w-full"
+                  className="w-full bg-navy text-white py-4 text-[11px] uppercase tracking-[3px] hover:bg-gold transition-colors"
                 >
                   Authenticate
                 </button>

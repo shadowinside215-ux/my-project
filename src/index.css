@@ -1,89 +1,69 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Montserrat", sans-serif;
 
-  --color-navy: #0F1A2B;
-  --color-ivory: #F5F1E8;
-  --color-gold: #B39A6A;
-  --color-charcoal: #1C1C1C;
-  --color-platinum: #C7CCD3;
+  --color-navy: #1A1E2E;
+  --color-ivory: #F5F0E8;
+  --color-gold: #C9A96E;
+  --color-charcoal: #1A1E2E;
+  --color-border: #E0D9CE;
 }
 
 @layer base {
-  html {
-    font-size: 16px;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
+
+  html, body {
+    width: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   body {
-    @apply bg-ivory text-charcoal font-sans antialiased;
+    background-color: var(--color-ivory);
+    font-family: var(--font-serif);
+    color: var(--color-navy);
+    -webkit-font-smoothing: antialiased;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-serif font-medium tracking-tight;
+
+  button {
+    cursor: pointer;
+    border-radius: 0 !important;
+  }
+
+  img {
+    border-radius: 0 !important;
   }
 }
 
-.luxury-border {
-  @apply border border-platinum;
+@layer components {
+  .section-divider {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .ornament-line {
+    height: 1px;
+    width: 40px;
+    background-color: var(--color-gold);
+  }
+
+  .nav-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
 }
 
-.luxury-divider {
-  @apply w-12 h-[1px] bg-gold mb-4;
-}
-
-.luxury-button {
-  @apply bg-navy text-ivory px-6 py-2.5 text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:opacity-90;
-}
-
-.luxury-button-outline {
-  @apply border border-navy text-navy px-6 py-2.5 text-[9px] uppercase tracking-[0.3em] font-medium transition-all duration-500 hover:bg-navy hover:text-ivory;
-}
-
-/* Lenis smooth scroll */
-html.lenis {
-  height: auto;
-}
-
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #B39A6A;
-  border-radius: 10px;
-}
-
-/* Font size scaling for DraggableResizable */
+/* Draggable and Resizable styles */
 .draggable-resizable-container {
-  font-size: var(--draggable-font-size, inherit);
+  /* Font size is now handled via zoom/scale in the component */
 }
 
-.draggable-resizable-container h1,
-.draggable-resizable-container h2,
-.draggable-resizable-container h3,
-.draggable-resizable-container h4,
-.draggable-resizable-container p,
-.draggable-resizable-container span,
-.draggable-resizable-container a {
-  font-size: inherit !important;
+.admin-dragging * {
+  pointer-events: none !important;
 }

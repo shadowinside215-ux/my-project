@@ -166,28 +166,36 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateLayout = (id: string, layout: Partial<LayoutElement>) => {
-    const updatedLayout = { ...(state.layouts[id] || { id, x: 0, y: 0 }), ...layout };
-    setState(prev => ({
-      ...prev,
-      layouts: {
-        ...prev.layouts,
-        [id]: updatedLayout
-      }
-    }));
-    
-    if (isAdmin) {
-      // Debounce Firestore update
-      const timeoutId = (window as any)[`layout_timeout_${id}`];
-      if (timeoutId) clearTimeout(timeoutId);
+    setState(prev => {
+      const currentLayout = prev.layouts[id] || { id, x: 0, y: 0 };
+      const updatedLayout = { ...currentLayout, ...layout };
       
-      (window as any)[`layout_timeout_${id}`] = setTimeout(async () => {
-        try {
-          await setDoc(doc(db, 'layouts', id), updatedLayout, { merge: true });
-        } catch (error) {
-          console.error('Layout update error:', error);
+      if (isAdmin) {
+        // Debounce Firestore update
+        const timeoutId = (window as any)[`layout_timeout_${id}`];
+        if (timeoutId) clearTimeout(timeoutId);
+        
+        (window as any)[`layout_timeout_${id}`] = setTimeout(async () => {
+          try {
+            // Filter out undefined values before sending to Firestore
+            const cleanLayout = Object.fromEntries(
+              Object.entries(updatedLayout).filter(([_, v]) => v !== undefined)
+            );
+            await setDoc(doc(db, 'layouts', id), cleanLayout, { merge: true });
+          } catch (error) {
+            console.error('Layout update error:', error);
+          }
+        }, 500);
+      }
+
+      return {
+        ...prev,
+        layouts: {
+          ...prev.layouts,
+          [id]: updatedLayout
         }
-      }, 500); // 500ms debounce
-    }
+      };
+    });
   };
 
   const updateProducts = async (products: Product[]) => {
@@ -276,7 +284,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // Save layouts
       Object.values(layouts as Record<string, LayoutElement>).forEach(layout => {
-        batch.set(doc(db, 'layouts', layout.id), layout);
+        const cleanLayout = Object.fromEntries(
+          Object.entries(layout).filter(([_, v]) => v !== undefined)
+        );
+        batch.set(doc(db, 'layouts', layout.id), cleanLayout);
       });
 
       // Save settings
