@@ -4,13 +4,17 @@ import { useAdmin } from '../AdminContext';
 import { motion } from 'motion/react';
 import { AdminImage } from './AdminImage';
 import { DraggableResizable } from './DraggableResizable';
+import { cn } from '../lib/utils';
 
 export const Hero: React.FC = () => {
-  const { state, updateImages, isAdmin, setIsScrollEnabled } = useAdmin();
+  const { state, updateImages, isAdmin, setIsScrollEnabled, isMobile } = useAdmin();
   const { t } = useTranslation();
 
   return (
-    <section className="relative w-full h-[580px] max-md:h-[420px] overflow-hidden bg-navy">
+    <section className={cn(
+      "relative w-full overflow-hidden bg-navy",
+      !isMobile ? "h-[580px]" : "h-[320px]"
+    )}>
       {/* Background Image */}
       <div className="absolute inset-0">
         <AdminImage 

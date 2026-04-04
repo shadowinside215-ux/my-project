@@ -3,14 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useAdmin } from '../AdminContext';
 import { AdminImage } from './AdminImage';
 import { DraggableResizable } from './DraggableResizable';
+import { cn } from '../lib/utils';
 
 export const NewCollection: React.FC = () => {
-  const { state, updateImages, setIsScrollEnabled } = useAdmin();
+  const { state, updateImages, setIsScrollEnabled, isMobile } = useAdmin();
   const { t } = useTranslation();
 
   return (
     <section id="collection" className="w-full bg-ivory section-divider">
-      <div className="grid grid-cols-2 h-[420px] max-md:h-auto overflow-hidden">
+      <div className={cn(
+        "grid grid-cols-2 overflow-hidden",
+        !isMobile ? "h-[420px]" : "h-[220px]"
+      )}>
         {/* Left Column: Text */}
         <div className="p-[60px] max-md:p-[30px] flex flex-col justify-center relative">
           <DraggableResizable id="new-collection-content">

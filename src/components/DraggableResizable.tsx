@@ -79,7 +79,7 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
     document.addEventListener('mouseup', onMouseUp);
   }, [isAdmin, layout.x, layout.y, id, updateLayout]);
 
-  const handleResize = useCallback((e: React.MouseEvent) => {
+  const handleResize = useCallback((e: React.MouseEvent, direction: string) => {
     if (!isAdmin || !containerRef.current) return;
     e.preventDefault();
     e.stopPropagation();
@@ -88,22 +88,53 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
     const startY = e.clientY;
     const startWidth = containerRef.current.offsetWidth;
     const startHeight = containerRef.current.offsetHeight;
+    const startXPos = layout.x;
+    const startYPos = layout.y;
+    const startFontSize = layout.fontSize || 100;
 
     setIsResizing(true);
 
     const updateSize = (moveEvent: MouseEvent) => {
-      const newWidth = Math.max(50, startWidth + (moveEvent.clientX - startX));
-      const newHeight = Math.max(50, startHeight + (moveEvent.clientY - startY));
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+      
+      let newWidth = startWidth;
+      let newHeight = startHeight;
+      let newX = startXPos;
+      let newY = startYPos;
+
+      if (direction.includes('e')) {
+        newWidth = Math.max(20, startWidth + deltaX);
+      }
+      if (direction.includes('w')) {
+        const widthChange = Math.min(startWidth - 20, deltaX);
+        newWidth = startWidth - widthChange;
+        newX = startXPos + widthChange;
+      }
+      if (direction.includes('s')) {
+        newHeight = Math.max(20, startHeight + deltaY);
+      }
+      if (direction.includes('n')) {
+        const heightChange = Math.min(startHeight - 20, deltaY);
+        newHeight = startHeight - heightChange;
+        newY = startYPos + heightChange;
+      }
       
       sizeRef.current = { width: newWidth, height: newHeight };
+      posRef.current = { x: newX, y: newY };
 
       if (containerRef.current) {
         containerRef.current.style.width = `${newWidth}px`;
         containerRef.current.style.height = `${newHeight}px`;
+        containerRef.current.style.transform = `translate3d(${newX}px, ${newY}px, 0)`;
         
         if (isText) {
-          const scaleFactor = newWidth / startWidth;
-          const newFontSize = Math.round((layout.fontSize || 100) * scaleFactor);
+          // Calculate scale factor based on the dimension that changed the most
+          const scaleX = newWidth / startWidth;
+          const scaleY = newHeight / startHeight;
+          const scaleFactor = Math.max(scaleX, scaleY);
+          
+          const newFontSize = Math.round(startFontSize * scaleFactor);
           const contentDiv = containerRef.current.querySelector('.draggable-content') as HTMLElement;
           if (contentDiv) {
             contentDiv.style.transform = `scale(${newFontSize / 100})`;
@@ -126,6 +157,8 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
       updateLayout(id, { 
         width: sizeRef.current.width, 
         height: sizeRef.current.height,
+        x: posRef.current.x,
+        y: posRef.current.y,
         fontSize: isText && pendingFontSize ? pendingFontSize : layout.fontSize
       });
       
@@ -136,7 +169,7 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  }, [isAdmin, id, updateLayout]);
+  }, [isAdmin, id, updateLayout, layout.x, layout.y, layout.fontSize, isText]);
 
   const adjustFontSize = (delta: number) => {
     const currentSize = layout.fontSize || 100;
@@ -146,6 +179,17 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
   const resetLayout = () => {
     updateLayout(id, { x: 0, y: 0, width: undefined, height: undefined, fontSize: 100 });
   };
+
+  const resizeHandles = [
+    { dir: 'n', class: 'top-0 left-0 w-full h-2 cursor-n-resize -translate-y-1/2' },
+    { dir: 's', class: 'bottom-0 left-0 w-full h-2 cursor-s-resize translate-y-1/2' },
+    { dir: 'e', class: 'top-0 right-0 w-2 h-full cursor-e-resize translate-x-1/2' },
+    { dir: 'w', class: 'top-0 left-0 w-2 h-full cursor-w-resize -translate-x-1/2' },
+    { dir: 'nw', class: 'top-0 left-0 w-4 h-4 cursor-nw-resize -translate-x-1/2 -translate-y-1/2' },
+    { dir: 'ne', class: 'top-0 right-0 w-4 h-4 cursor-ne-resize translate-x-1/2 -translate-y-1/2' },
+    { dir: 'sw', class: 'bottom-0 left-0 w-4 h-4 cursor-sw-resize -translate-x-1/2 translate-y-1/2' },
+    { dir: 'se', class: 'bottom-0 right-0 w-4 h-4 cursor-se-resize translate-x-1/2 translate-y-1/2' },
+  ];
 
   return (
     <div
@@ -210,14 +254,17 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
         </div>
       )}
 
-      {isAdmin && (
+      {isAdmin && resizeHandles.map((handle) => (
         <div 
-          className="absolute -bottom-2 -right-2 w-4 h-4 bg-gold rounded-full cursor-nwse-resize z-[110] opacity-0 group-hover:opacity-100 transition-all border-2 border-navy shadow-lg flex items-center justify-center hover:scale-125"
-          onMouseDown={handleResize}
-        >
-          <Maximize2 size={8} className="text-navy" />
-        </div>
-      )}
+          key={handle.dir}
+          className={cn(
+            "absolute z-[110] opacity-0 group-hover:opacity-100 transition-all",
+            handle.class,
+            handle.dir.length === 2 && "bg-gold border border-navy rounded-full shadow-lg hover:scale-125"
+          )}
+          onMouseDown={(e) => handleResize(e, handle.dir)}
+        />
+      ))}
       
       <div 
         className={cn("w-full h-full origin-top-left draggable-content", isDragging && "pointer-events-none")}

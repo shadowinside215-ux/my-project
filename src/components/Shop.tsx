@@ -101,7 +101,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
 
 export const Collection: React.FC = () => {
   const { t } = useTranslation();
-  const { state, isAdmin, addProduct, updateImages, setPendingProduct, isScrollEnabled, setIsScrollEnabled } = useAdmin();
+  const { state, isAdmin, addProduct, updateImages, setPendingProduct, isScrollEnabled, setIsScrollEnabled, isMobile } = useAdmin();
   const [activeCategory, setActiveCategory] = useState('all');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -168,7 +168,11 @@ export const Collection: React.FC = () => {
   if (!isScrollEnabled) return null;
 
   return (
-    <section id="shop" className="min-h-screen bg-ivory p-4 md:p-8 flex flex-col overflow-hidden py-24">
+    <section id="shop" className={cn(
+      "bg-ivory p-4 md:p-8 flex flex-col overflow-hidden",
+      !isMobile && "min-h-screen py-24",
+      isMobile && "py-10"
+    )}>
       <div className="flex justify-center mb-12">
         <DraggableResizable id="shop-title">
           <h2 className="font-serif text-[42px] font-normal text-center">

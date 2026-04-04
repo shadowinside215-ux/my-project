@@ -4,14 +4,18 @@ import { useAdmin } from '../AdminContext';
 import { Crown, Instagram, Facebook } from 'lucide-react';
 import { AdminImage } from './AdminImage';
 import { DraggableResizable } from './DraggableResizable';
+import { cn } from '../lib/utils';
 
 export const Footer: React.FC = () => {
-  const { state, updateImages } = useAdmin();
+  const { state, updateImages, isMobile } = useAdmin();
   const { t } = useTranslation();
 
   return (
-    <footer className="w-full bg-navy text-white p-[50px] px-[60px] max-md:px-[24px] max-md:py-[40px]">
-      <div className="max-w-[1800px] mx-auto grid grid-cols-3 gap-12 max-md:gap-6 max-md:text-center">
+    <footer className={cn(
+      "w-full bg-navy text-white",
+      !isMobile ? "p-[50px] px-[60px]" : "px-[24px] py-[20px]"
+    )}>
+      <div className="max-w-[1800px] mx-auto grid grid-cols-3 gap-12 max-md:gap-4 max-md:text-center">
         {/* Left: Brand */}
         <div className="flex flex-col max-md:items-center">
           <DraggableResizable id="footer-brand">

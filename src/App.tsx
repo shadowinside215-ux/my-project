@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Lenis from 'lenis';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -17,13 +17,58 @@ import { cn } from './lib/utils';
 import './i18n';
 
 export default function App() {
-  const { state, isDataLoading } = useAdmin();
+  const { state, isDataLoading, isMobile } = useAdmin();
   const { i18n } = useTranslation();
+  const [scale, setScale] = useState(1);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLElement>(null);
+  const requestRef = useRef<number>();
 
   useEffect(() => {
     document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
+
+  useEffect(() => {
+    if (isMobile && !isDataLoading) {
+      const updateScale = () => {
+        if (!wrapperRef.current || !contentRef.current) return;
+        
+        const contentHeight = contentRef.current.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        
+        if (contentHeight === 0) return;
+
+        // Calculate scale to fit height
+        const newScale = viewportHeight / contentHeight;
+        
+        // Apply scale
+        setScale(newScale);
+      };
+
+      const resizeObserver = new ResizeObserver(() => {
+        if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        requestRef.current = requestAnimationFrame(() => {
+          updateScale();
+        });
+      });
+
+      if (contentRef.current) {
+        resizeObserver.observe(contentRef.current);
+      }
+
+      // Initial update
+      updateScale();
+      
+      window.addEventListener('resize', updateScale);
+      return () => {
+        resizeObserver.disconnect();
+        window.removeEventListener('resize', updateScale);
+      };
+    } else {
+      setScale(1);
+    }
+  }, [isMobile, isDataLoading, state]);
 
   if (isDataLoading) {
     return (
@@ -33,10 +78,6 @@ export default function App() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center"
         >
-          <div className="flex flex-col -space-y-2 mb-8 items-center">
-            <span className="text-4xl font-serif text-white tracking-[0.3em] leading-none">MEN</span>
-            <span className="text-5xl font-serif text-gold tracking-[0.3em] leading-none">31</span>
-          </div>
           <div className="w-48 h-[1px] bg-gold/20 relative overflow-hidden">
             <motion.div
               initial={{ x: '-100%' }}
@@ -51,19 +92,40 @@ export default function App() {
   }
 
   return (
-    <div className="w-full bg-ivory selection:bg-gold selection:text-white">
-      <Navbar />
+    <div 
+      className={cn(
+        "w-full bg-ivory selection:bg-gold selection:text-white",
+        isMobile && "h-screen overflow-hidden relative"
+      )}
+    >
       <AdminPanel />
       <PendingProductModal />
       
-      <main className="w-full">
-        <Hero />
-        <NewCollection />
-        <Collection />
-        <Philosophy />
-        <Lookbook />
-      </main>
-      <Footer />
+      <div 
+        ref={wrapperRef}
+        style={isMobile ? {
+          transform: `scale(${scale})`,
+          transformOrigin: 'top center',
+          width: `${100 / scale}%`,
+          height: 'auto',
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          marginLeft: `-${(100 / scale) / 2}%`
+        } : {}}
+      >
+        <div ref={contentRef} className="w-full">
+          <Navbar />
+          <main className="w-full">
+            <Hero />
+            <NewCollection />
+            <Collection />
+            <Philosophy />
+            <Lookbook />
+          </main>
+          <Footer />
+        </div>
+      </div>
     </div>
   );
 }

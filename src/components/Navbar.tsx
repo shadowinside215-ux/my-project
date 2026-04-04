@@ -34,7 +34,7 @@ export const Navbar: React.FC = () => {
   return (
     <nav className="h-[70px] bg-navy flex justify-between items-center px-[60px] max-md:px-[24px] relative z-[100] nav-shadow">
       {/* Left: Brand */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center">
         <AdminImage 
           id="nav-logo-img"
           src={state.logoImage}
@@ -43,10 +43,6 @@ export const Navbar: React.FC = () => {
           onUpload={(url) => updateImages('logoImage', url)}
           noBorder
         />
-        <div className="flex items-center space-x-2">
-          <Crown size={22} className="text-white" />
-          <span className="font-serif text-white text-[22px] tracking-tight">MEN31</span>
-        </div>
       </div>
 
       {/* Right: Desktop Links */}
