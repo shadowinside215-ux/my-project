@@ -78,6 +78,19 @@ export default function App() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center"
         >
+          {state.logoImage ? (
+            <img 
+              src={state.logoImage} 
+              alt="MEN 31 Logo" 
+              className="w-32 h-32 object-contain mb-8"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="flex flex-col items-center mb-8">
+              <Crown className="text-gold w-12 h-12 mb-4" />
+              <h1 className="text-ivory font-serif text-3xl tracking-[0.2em]">MEN 31</h1>
+            </div>
+          )}
           <div className="w-48 h-[1px] bg-gold/20 relative overflow-hidden">
             <motion.div
               initial={{ x: '-100%' }}
