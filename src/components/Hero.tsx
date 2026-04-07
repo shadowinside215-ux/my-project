@@ -42,6 +42,7 @@ export const Hero: React.FC = () => {
               {t('hero_title', 'Timeless Menswear.')}<br />{t('hero_subtitle', 'Refined Presence.')}
             </h1>
             <button 
+              onClick={() => window.location.href = 'https://men31-clothes.netlify.app/'}
               className="mt-[24px] font-sans text-[11px] text-white uppercase tracking-[3px] border-[1.5px] border-white px-[28px] py-[14px] bg-transparent hover:bg-white hover:text-navy transition-all duration-500"
             >
               {t('hero_cta', 'DISCOVER THE COLLECTION')}

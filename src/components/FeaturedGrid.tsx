@@ -27,6 +27,7 @@ export const NewCollection: React.FC = () => {
                 {t('new_collection_subtitle', 'LUXURY ESSENTIALS FOR THE MODERN GENTLEMAN')}
               </p>
               <button 
+                onClick={() => window.location.href = 'https://men31-clothes.netlify.app/'}
                 className="mt-[24px] font-sans text-[11px] tracking-[3px] border-[1.5px] border-navy bg-transparent text-navy px-[24px] py-[12px] w-fit hover:bg-navy hover:text-white transition-all duration-500"
               >
                 {t('new_collection_cta', 'VIEW COLLECTION')}

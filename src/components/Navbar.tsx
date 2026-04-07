@@ -32,21 +32,27 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="h-[70px] bg-navy flex justify-between items-center px-[60px] max-md:px-[24px] relative z-[100] nav-shadow">
+    <nav className="h-[70px] bg-navy flex items-center px-[60px] max-md:px-[24px] relative z-[100] nav-shadow">
       {/* Left: Brand */}
-      <div className="flex items-center">
-        <AdminImage 
-          id="nav-logo-img"
-          src={state.logoImage}
-          alt="Logo"
-          className="w-10 h-10 transition-all duration-700"
-          onUpload={(url) => updateImages('logoImage', url)}
-          noBorder
-        />
+      <div className="flex-1 flex justify-start">
+        <button 
+          onClick={() => window.location.reload()} 
+          className="flex items-center hover:opacity-80 transition-opacity"
+          title="Reload Home"
+        >
+          <AdminImage 
+            id="nav-logo-img"
+            src={state.logoImage}
+            alt="Logo"
+            className="w-10 h-10 transition-all duration-700"
+            onUpload={(url) => updateImages('logoImage', url)}
+            noBorder
+          />
+        </button>
       </div>
 
-      {/* Right: Links (Visible on both Desktop and Mobile) */}
-      <div className="flex items-center space-x-[15px] md:space-x-[30px]">
+      {/* Center: Links */}
+      <div className="flex-1 flex justify-center">
         <DraggableResizable id="nav-links">
           <div className="flex items-center space-x-[10px] md:space-x-[30px] font-sans text-white text-[8px] md:text-[12px] tracking-[1px] md:tracking-[3px] uppercase">
             <a href="#" className="hover:text-gold transition-colors">Home</a>
@@ -58,7 +64,10 @@ export const Navbar: React.FC = () => {
             </button>
           </div>
         </DraggableResizable>
+      </div>
 
+      {/* Right: Actions */}
+      <div className="flex-1 flex justify-end">
         <div className="flex items-center space-x-2 md:space-x-6 border-l border-white/10 pl-2 md:pl-6">
           <button 
             onClick={() => setIsScrollEnabled(!isScrollEnabled)}
