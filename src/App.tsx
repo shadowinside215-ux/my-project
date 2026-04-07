@@ -25,7 +25,7 @@ export default function App() {
   const requestRef = useRef<number>();
 
   useEffect(() => {
-    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = 'ltr';
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
 

@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
+      site_name: 'MEN 31 Premium clothing shop',
       hero_title: 'TIMELESS MENSWEAR',
       hero_button: 'Discover the Collection',
       new_collection_title: 'New Collection',
@@ -36,6 +37,7 @@ const resources = {
   },
   fr: {
     translation: {
+      site_name: 'MEN 31 Boutique de vêtements premium',
       hero_title: 'Mode Masculine Intemporelle. Présence Raffinée.',
       hero_button: 'Découvrir la Collection',
       new_collection_title: 'Nouvelle Collection',
@@ -67,6 +69,7 @@ const resources = {
   },
   ar: {
     translation: {
+      site_name: 'MEN 31 متجر ملابس فاخرة',
       hero_title: 'ملابس رجالية خالدة. حضور راقٍ.',
       hero_button: 'اكتشف المجموعة',
       new_collection_title: 'مجموعة جديدة',
