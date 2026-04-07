@@ -112,7 +112,8 @@ export const Navbar: React.FC = () => {
             <span>{i18n.language.toUpperCase()}</span>
           </button>
 
-          {isAdmin ? (
+          {/* Admin buttons hidden as requested */}
+          {false && (isAdmin ? (
             <button 
               onClick={logout}
               className="flex items-center space-x-1 md:space-x-2 border border-gold/30 uppercase tracking-widest hover:bg-gold hover:text-navy transition-all px-2 md:px-3 py-0.5 md:py-1 text-[8px] md:text-[10px] text-gold"
@@ -127,7 +128,7 @@ export const Navbar: React.FC = () => {
             >
               <LogIn size={14} className="md:w-[18px] md:h-[18px]" />
             </button>
-          )}
+          ))}
         </div>
       </div>
 
