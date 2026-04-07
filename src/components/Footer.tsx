@@ -20,7 +20,14 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col max-md:items-center">
           <DraggableResizable id="footer-brand">
             <div className="flex flex-col items-start max-md:items-center">
-              <div className="flex items-center space-x-2 mb-2">
+              <div 
+                role="button"
+                tabIndex={0}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onKeyDown={(e) => e.key === 'Enter' && window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="flex items-center space-x-2 mb-2 cursor-pointer hover:opacity-80 transition-opacity"
+                title="Back to Top"
+              >
                 <AdminImage 
                   id="footer-logo-img"
                   src={state.footerLogo || state.logoImage}

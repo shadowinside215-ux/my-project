@@ -38,10 +38,10 @@ export const Navbar: React.FC = () => {
         <div 
           role="button"
           tabIndex={0}
-          onClick={() => window.location.reload()} 
-          onKeyDown={(e) => e.key === 'Enter' && window.location.reload()}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          onKeyDown={(e) => e.key === 'Enter' && window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="flex items-center hover:opacity-80 transition-opacity cursor-pointer"
-          title="Reload Home"
+          title="Back to Top"
         >
           <AdminImage 
             id="nav-logo-img"
