@@ -58,10 +58,34 @@ export const Navbar: React.FC = () => {
       <div className="flex justify-center">
         <DraggableResizable id="nav-links">
           <div className="flex items-center space-x-[10px] md:space-x-[30px] font-sans text-white text-[8px] md:text-[12px] tracking-[1px] md:tracking-[3px] uppercase">
-            <a href="#" className="hover:text-gold transition-colors">Home</a>
-            <a href="#collection" className="hover:text-gold transition-colors">Collection</a>
-            <a href="#about" className="hover:text-gold transition-colors">About</a>
-            <a href="#contact" className="hover:text-gold transition-colors">Contact</a>
+            <a 
+              href={isMobile ? undefined : "#"} 
+              className={cn("transition-colors", !isMobile && "hover:text-gold")}
+              onClick={(e) => isMobile && e.preventDefault()}
+            >
+              Home
+            </a>
+            <a 
+              href={isMobile ? undefined : "#collection"} 
+              className={cn("transition-colors", !isMobile && "hover:text-gold")}
+              onClick={(e) => isMobile && e.preventDefault()}
+            >
+              Collection
+            </a>
+            <a 
+              href={isMobile ? undefined : "#about"} 
+              className={cn("transition-colors", !isMobile && "hover:text-gold")}
+              onClick={(e) => isMobile && e.preventDefault()}
+            >
+              About
+            </a>
+            <a 
+              href={isMobile ? undefined : "#contact"} 
+              className={cn("transition-colors", !isMobile && "hover:text-gold")}
+              onClick={(e) => isMobile && e.preventDefault()}
+            >
+              Contact
+            </a>
           </div>
         </DraggableResizable>
       </div>
