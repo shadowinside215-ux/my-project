@@ -38,6 +38,21 @@ export default function App() {
         document.getElementsByTagName('head')[0].appendChild(link);
       }
       link.href = state.logoImage;
+
+      // Update social media preview images
+      const updateMetaTag = (property: string, content: string, isProperty = true) => {
+        let tag = document.querySelector(`meta[${isProperty ? 'property' : 'name'}="${property}"]`);
+        if (!tag) {
+          tag = document.createElement('meta');
+          tag.setAttribute(isProperty ? 'property' : 'name', property);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute('content', content);
+      };
+
+      updateMetaTag('og:image', state.logoImage);
+      updateMetaTag('og:image:secure_url', state.logoImage);
+      updateMetaTag('twitter:image', state.logoImage);
     }
   }, [state.logoImage]);
 
