@@ -151,13 +151,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [error, setError] = useState<string | null>(null);
 
   const login = async (user: string, pass: string) => {
-    console.log('Attempting login with:', user);
     if (user === 'sam' && pass === 'sam2006') {
       setIsAdmin(true);
       setError(null);
       return true;
     }
-    console.log('Login failed');
     setError('Invalid credentials');
     return false;
   };

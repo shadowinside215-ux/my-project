@@ -15,6 +15,7 @@ interface AdminImageProps {
   onClick?: () => void;
   aspectRatio?: string;
   noBorder?: boolean;
+  isDraggable?: boolean;
 }
 
 const MAX_FIRESTORE_SIZE = 1000000; // ~1MB limit for safety

@@ -68,7 +68,7 @@ const ProductCard: React.FC<{ product: any }> = ({ product }) => {
         ) : (
           <DraggableResizable id={`product-info-${product.id}`}>
             <div className="flex flex-col items-center px-4">
-              <p className="text-[10px] uppercase tracking-[0.4em] text-gold/60 font-bold mb-1">{t(`category_${product.category}`, product.category)}</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-gold/60 font-bold mb-1">{String(t(`category_${product.category}`, product.category))}</p>
               <h3 className="text-lg md:text-xl font-serif text-charcoal group-hover:text-gold transition-colors duration-300">
                 {product.name}
               </h3>

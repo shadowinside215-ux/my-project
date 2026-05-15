@@ -27,7 +27,7 @@ export const DraggableResizable: React.FC<DraggableResizableProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
   const posRef = useRef({ x: layout.x, y: layout.y });
   const sizeRef = useRef({ width: layout.width, height: layout.height });
 

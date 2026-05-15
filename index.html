@@ -11,7 +11,7 @@
     <meta name="twitter:title" content="MEN 31" />
     <meta name="twitter:description" content="Timeless Menswear. Refined Presence." />
     <script>
-      // Suppress benign WebSocket errors in AI Studio
+      // Suppress benign WebSocket errors in development preview
       window.addEventListener('unhandledrejection', function(event) {
         if (event.reason && (event.reason.message?.includes('WebSocket') || event.reason.toString().includes('WebSocket'))) {
           event.preventDefault();

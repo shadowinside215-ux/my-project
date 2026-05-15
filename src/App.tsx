@@ -21,8 +21,8 @@ export default function App() {
   const { i18n } = useTranslation();
   const [scale, setScale] = useState(1);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLElement>(null);
-  const requestRef = useRef<number>();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const requestRef = useRef<number | null>(null);
 
   useEffect(() => {
     document.documentElement.dir = 'ltr';

@@ -2,13 +2,16 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 import { AdminProvider } from './AdminContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AdminProvider>
-      <App />
-    </AdminProvider>
+    <ErrorBoundary>
+      <AdminProvider>
+        <App />
+      </AdminProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );
